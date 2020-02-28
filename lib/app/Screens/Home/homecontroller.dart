@@ -26,6 +26,8 @@ class Controller extends ControllerMVC {
   // set context(value)=>model.context = value;
   get currentmonthname =>model.currentmonthname;
  set currentmonthname(value) =>model.currentmonthname=value;
+   get previousmonthname =>model.previousmonthname;
+ set previousmonthname(value) =>model.previousmonthname=value;
   @override
   void initState() {
     //runs first, avoid using this unless mandatory
@@ -42,17 +44,29 @@ class Controller extends ControllerMVC {
 init() async {
       model.mySharedPreferences =
         await SharedPreferences.getInstance();
-        previousmonth();
+        var now = new DateTime.now();
+        
+        var formatter = new DateFormat.MMMM();
+      
+        setState(() {
+        currentmonthname = formatter.format(now);
+        
+        });
+        setState(() {
+        //previousmonthname = formatter.add_MMMM();
+        });
+     // print("ddsddsds") ;  
   }
   void previousmonth() async{
   var totallist=await model.bookingList();
-  var now = new DateTime.now();
-var formatter = new DateFormat('MM');
-  currentmonthname = formatter.format(now);
+ 
 
   }
   void currentmonth() async{
+    
   var totallist=await model.bookingList();
+  
+  print(currentmonthname);
   }
   void navigationPage(BuildContext context) {
     print(currentmonthname);

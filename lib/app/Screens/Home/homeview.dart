@@ -63,11 +63,11 @@ class _HomescreenState extends StateMVC<Homescreen> {
                   child: new Column(
                     children: <Widget>[
                       
-                      new Text(_controller.currentmonthname,
+                      new Text(_controller.previousmonthname,
                       style: TextStyle(
         color: Colors.blue,
       ),),
-                      new Text('How are you?')
+                      new Text('22')
                     ],
                   ),
                 ),
@@ -78,8 +78,8 @@ class _HomescreenState extends StateMVC<Homescreen> {
                   padding: new EdgeInsets.all(32.0),
                   child: new Column(
                     children: <Widget>[
-                      new Text('Hello World'),
-                      new Text('How are you?')
+                      new Text(_controller.currentmonthname),
+                      new Text('25')
                     ],
                   ),
                 ),
