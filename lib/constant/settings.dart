@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
 
 class Settings {
@@ -26,22 +25,21 @@ class Settings {
   static get thumbnailPath async {
     return await path + THUMBNAILPATH;
   }
- static Map timeEntry= {
-            "time_entry": {
-                "project_id": 342,
-                "hours": 0,
-                "activity_id": 16,
-                "custom_fields": [
-                    {
-                        "id": 39,
-                        "value": "1"
-                    },
-                    {
-                        "id": 41,
-                        "value": "1"
-                    }
-                ],
-                "comments" :"I need meals(with one chapati) today"
-            }
-        }; 
+  //static const String  nggtgg =_controller.selectedOption;
+
+  static Map timeEntry(int selectedLunchMenuId, String specialItemValue) {
+    return {
+      "time_entry": {
+        "project_id": 342,
+        "hours": 0,
+        "activity_id": 16,
+        "custom_fields": [
+          {"id": 39, "value": "1"},
+          {"id": 41, "value": selectedLunchMenuId.toString()},
+          {"id": 47, "value": specialItemValue}
+        ],
+        "comments": "I need meals(with one chapati) today"
+      }
+    };
+  }
 }

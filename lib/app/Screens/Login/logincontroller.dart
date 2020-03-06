@@ -8,8 +8,6 @@ import 'package:flushbar/flushbar.dart';
 import 'loginmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:http/http.dart' as http;
-
 class Controller extends ControllerMVC {
   //final log = getLogger('template');
   factory Controller() {
@@ -104,75 +102,6 @@ Navigator.push( this.stateMVC.context,MaterialPageRoute(builder: (context) => Ho
 )..show(context);
   
     }
-    
- 
-    //return ;
-    // var data = jsonEncode({
-    //   "password": loginData["password"],
-    //   "username": loginData["username"], 
-    //   "grant_type": "password",
-    // });
-    // print('login data ${data}');
-    // setState(() {
-    //   isLoading = true;
-    // });
-    // SharedPreferences mySharedPreferences =
-    //     await SharedPreferences.getInstance();
-    // var response = await model.login(data);
-    // print("responselogin${response}");
-    // if (response["success"]) {
-    //   if (response['data']['role_id'] == 4) {
-    //     print(response['data']);
-    //     var authToken = response['data']['access_token'];
-    //     var userId = response['data']['id'];
-    //     var refreshToken = response['data']['refresh_token'];
-    //     print(refreshToken);
-    //     var userRole = response['data']['role_id'];
-    //     var userName = response['data']['firstname'];
-    //     print("$authToken");
-    //     mySharedPreferences.setString('authToken', authToken);
-    //     mySharedPreferences.setString('idOfUser', userId.toString());
-    //     mySharedPreferences.setString('refreshToken', refreshToken);
-    //     mySharedPreferences.setString('userRole', userRole.toString());
-    //     mySharedPreferences.setString('userName', userName.toString());
-    //     setState(() {
-    //       isLoading = false;
-    //     });
-    //     print("Login success. Taking to next page");
-    //   // _router.navigate(Pages.fetchingScreen, this.stateMVC.context, {});
-    //   } else {
-    //     setState(() {
-    //       isLoading = false;
-    //       model.errorMessage = "Please use Warehouse Login";
-    //     });
-    //     userNameController.addListener(() {
-    //       setState(() {
-    //         model.errorMessage = null;
-    //       });
-    //     });
-    //     passwordController.addListener(() {
-    //       setState(() {
-    //         model.errorMessage = null;
-    //       });
-    //     });
-    //   }
-    // } else {
-    //   setState(() {
-    //     isLoading = false;
-    //     model.errorMessage = response["data"] != null
-    //         ? response["data"]["errors"]["message"]
-    //         : response["message"];
-    //   });
-    //   userNameController.addListener(() {
-    //     setState(() {
-    //       model.errorMessage = null;
-    //     });
-    //   });
-    //   passwordController.addListener(() {
-    //     setState(() {
-    //       model.errorMessage = null;
-    //     });
-    //   });
-   // }
+   
   }
 }

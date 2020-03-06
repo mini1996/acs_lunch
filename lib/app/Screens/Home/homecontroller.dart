@@ -1,16 +1,16 @@
-import 'dart:async';
 import 'package:acs_lunch/app/Screens/Home/homemodel.dart';
-import 'package:acs_lunch/app/Screens/Login/loginview.dart';
 import 'package:acs_lunch/app/Screens/LunchBooking/book_lunch.view.dart';
-
+import 'package:acs_lunch/app/utils/http_helper.dart';
+import 'package:acs_lunch/utils/flushbar.dart';
+import 'package:acs_lunch/utils/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class Controller extends ControllerMVC {
- 
- // final log = getLogger('splash');
+  // final log = getLogger('splash');
   factory Controller() {
     if (_this == null) _this = Controller._();
     return _this;
@@ -20,19 +20,31 @@ class Controller extends ControllerMVC {
   Controller._();
 
   static Controller get controller => _this;
- 
- Model model = Model();
-  // get context => model.context;
-  // set context(value)=>model.context = value;
-  get currentmonthname =>model.currentmonthname;
- set currentmonthname(value) =>model.currentmonthname=value;
-   get previousmonthname =>model.previousmonthname;
- set previousmonthname(value) =>model.previousmonthname=value;
+
+  Model model = Model();
+  get loaderStatus => model.loaderStatus;
+  get currentmonthname => model.currentmonthname;
+  set currentmonthname(value) => model.currentmonthname = value;
+  get previousmonthname => model.previousmonthname;
+  set previousmonthname(value) => model.previousmonthname = value;
+  get dateWiseResults => model.dateWiseResults;
+  set dateWiseResults(value) => model.dateWiseResults = value;
+  get backButtonPressTime => model.backButtonPressTime;
+  set backButtonPressTime(value) => model.backButtonPressTime = value;
+  get scaffoldKey => model.scaffoldKey;
+  set scaffoldKey(value) => model.scaffoldKey;
+  get errorMessage => model.errorMessage;
+  set errorMessage(value) => model.errorMessage = value;
+  static const snackBarDuration = Duration(seconds: 3);
+  final snackBar = SnackBar(
+    content: Text('Press back again to exit'),
+    duration: snackBarDuration,
+  );
+
   @override
   void initState() {
     //runs first, avoid using this unless mandatory
     super.initState();
-  
   }
 
   @override
@@ -41,38 +53,62 @@ class Controller extends ControllerMVC {
     _this = null;
     super.dispose();
   }
-init() async {
-      model.mySharedPreferences =
-        await SharedPreferences.getInstance();
-        var now = new DateTime.now();
-        
-        var formatter = new DateFormat.MMMM();
-      
-        setState(() {
-        currentmonthname = formatter.format(now);
-        
-        });
-        setState(() {
-        //previousmonthname = formatter.add_MMMM();
-        });
-    // print("ddsddsds") ;  
-  }
-  void previousmonth() async{
-  var totallist=await model.bookingList();
- 
 
+  init() async {
+    model.mySharedPreferences = await SharedPreferences.getInstance();
+    monthNames();
+    await fetchLunchCountMonthWise();
   }
-  void currentmonth() async{
-    
-  var totallist=await model.bookingList();
-  
-  print(currentmonthname);
+
+  monthNames() async {
+    var now = new DateTime.now();
+    var formatter = new DateFormat.MMMM();
+    setState(() {
+      currentmonthname = formatter.format(now);
+    });
+    var prevMonth = new DateTime(now.year, now.month - 1, now.day);
+    setState(() {
+      previousmonthname = formatter.format(prevMonth);
+    });
   }
+
+  Future<void> fetchLunchCountMonthWise() async {
+    var lunchCountResponse = await model.fetchLunchCount();
+    if (lunchCountResponse['status'] == ResponseStatus.success) {
+      dateWiseResults = lunchCountResponse['data'];
+      setState(() {
+        model.loaderStatus = LoaderStatus.loaded;
+      });
+    } else {
+      setState(() {
+        model.loaderStatus = LoaderStatus.error;
+      });
+      FlushBarHelper.show(this.stateMVC.context,
+          message: lunchCountResponse['message']);
+    }
+  }
+
   void navigationPage(BuildContext context) {
-    print(currentmonthname);
-     Navigator.push( this.stateMVC.context,MaterialPageRoute(builder: (context) => BookLunchScreen()), );
-     
+    Navigator.push(
+      this.stateMVC.context,
+      MaterialPageRoute(builder: (context) => BookLunchScreen()),
+    );
   }
 
-  
+  Future<bool> onWillPop() async {
+    DateTime currentTime = DateTime.now();
+
+    bool backButtonHasNotBeenPressedOrSnackBarHasBeenClosed =
+        backButtonPressTime == null ||
+            currentTime.difference(backButtonPressTime) > snackBarDuration;
+
+    if (backButtonHasNotBeenPressedOrSnackBarHasBeenClosed) {
+      backButtonPressTime = currentTime;
+      scaffoldKey.currentState.showSnackBar(snackBar);
+      return false;
+    }
+
+    exit(0);
+    return false; //true sends it to previous page
+  }
 }

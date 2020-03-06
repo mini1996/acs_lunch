@@ -1,3 +1,4 @@
+import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -33,11 +34,12 @@ class _SplashscreenState extends StateMVC<Splashscreen> {
  //  _controller.context = context;
  
     return  Scaffold(
+      backgroundColor: AppColors.themeColor,
       body: Center(
        
        child: SpinKitFoldingCube(
 
-          color: Colors.red,
+          color: Colors.white,
           size: 100.0,
         )
       ),

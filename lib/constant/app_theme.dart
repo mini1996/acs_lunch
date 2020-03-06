@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'HexColor.dart';
-
 final ThemeData themeData = ThemeData(
   brightness: Brightness.light,
   primaryColor: AppColors.siteBlue,
@@ -41,7 +39,8 @@ class AppColors {
   static const Color grey = Colors.grey;
   static const Color black = Colors.black;
   static const Color darkBlue = Colors.blue;
-  Color lightBlue = HexColor("#45d1fd");
+
+  static const Color themeColor = Color(0xff4285f4);
   static const Color siteBlue = Color(0xff004C98);
   static const Color siteBluelight = Color(0xff1c7cdc);
   // static const Color success = Colors.green;

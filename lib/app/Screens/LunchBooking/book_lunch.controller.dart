@@ -1,9 +1,12 @@
 import 'package:acs_lunch/app/Screens/LunchBooking/book_lunch.model.dart';
 import 'package:acs_lunch/app/utils/http_helper.dart';
+import 'package:acs_lunch/constant/app_theme.dart';
+import 'package:acs_lunch/utils/flushbar.dart';
+import 'package:acs_lunch/utils/loader.dart';
+import 'package:acs_lunch/utils/logger.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Controller extends ControllerMVC {
@@ -15,27 +18,40 @@ class Controller extends ControllerMVC {
   static Controller _this;
 
   Controller._();
-//String userID;
+
   static Controller get controller => _this;
- // AppController appController;
- List data = List();
-set isLoading(value) => model.isLoading = value;
-get isLoading => model.isLoading;
-set isBooked(value) => model.isBooked = value;
-get isBooked => model.isBooked;
-set isalreadyBooked(value) => model.isalreadyBooked = value;
-get isalreadyBooked => model.isalreadyBooked;
-set isCancelled(value) => model.isCancelled = value;
-get isCancelled => model.isCancelled;
-get errorMessage => model.errorMessage;
-set errorMessage(value) => model.errorMessage = value;
-set userID(value) => model.userID = value;
-get userID => model.userID;
-Model model=Model();
+  get loaderStatus => model.loaderStatus;
+  get options => model.options;
+  set options(value) => model.options = value;
+  get specialOptions => model.specialOptions;
+  set specialOptions(value) => model.specialOptions = value;
+  get selectedLunchOption => model.selectedLunchOption;
+  set selectedLunchOption(selectedLunchOption) =>
+      model.selectedLunchOption = selectedLunchOption;
+  get selectedExtraMenus => model.selectedExtraMenus;
+  set selectedExtraMenus(selectedExtraMenus) =>
+      model.selectedExtraMenus = selectedExtraMenus;
+  set isLoading(value) => model.isLoading = value;
+  get isLoading => model.isLoading;
+  set isBooked(value) => model.isBooked = value;
+  get isBooked => model.isBooked;
+  set isalreadyBooked(value) => model.isalreadyBooked = value;
+  get isalreadyBooked => model.isalreadyBooked;
+  set isCancelled(value) => model.isCancelled = value;
+  get isEnabled => model.isEnabled;
+  set isEnabled(value) => model.isEnabled = value;
+  get isCancelled => model.isCancelled;
+  get errorMessage => model.errorMessage;
+  set errorMessage(value) => model.errorMessage = value;
+  set userID(value) => model.userID = value;
+  get userID => model.userID;
+  Model model = Model();
+
+  final log = getLogger('book lunch screen');
   @override
   void initState() {
     super.initState();
-   // appController = AppController.controller;
+    // appController = AppController.controller;
   }
 
   @override
@@ -46,141 +62,209 @@ Model model=Model();
   }
 
   init() async {
-      model.mySharedPreferences =
-        await SharedPreferences.getInstance();
-       
-      
+    model.mySharedPreferences = await SharedPreferences.getInstance();
+    fetchMenuItems();
+    fetchSpecialMenuItems();
   }
-  
+
+  void fetchMenuItems() async {
+    var fetchresponse = await model.menuItems();
+
+    if (fetchresponse['status'] == ResponseStatus.success) {
+      // log.d('sdfdb ${fetchresponse['data']}');
+      options = fetchresponse['data'];
+      selectedLunchOption =
+          fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
+      setState(() {
+        model.loaderStatus = LoaderStatus.loaded;
+      });
+    } else {
+      setState(() {
+        model.loaderStatus = LoaderStatus.error;
+      });
+
+      FlushBarHelper.show(this.stateMVC.context,
+          message: fetchresponse['message']);
+    }
+  }
+
+  void fetchSpecialMenuItems() async {
+    var fetchadditionalresponse = await model.specialMenuItems();
+
+    if (fetchadditionalresponse['status'] == ResponseStatus.success) {
+      // log.d('sdfdb ${fetchresponse['data']}');
+      specialOptions = fetchadditionalresponse['data'];
+
+      setState(() {
+        model.loaderStatus = LoaderStatus.loaded;
+      });
+    } else {
+      setState(() {
+        model.loaderStatus = LoaderStatus.error;
+      });
+
+      FlushBarHelper.show(this.stateMVC.context,
+          message: fetchadditionalresponse['message']);
+    }
+  }
+
   void onBookingPressed(BuildContext context) {
-     setState(() {
+    setState(() {
       isLoading = true;
     });
-    booking(context); 
+    booking(context);
   }
+
   void booking(BuildContext context) async {
-       
-   var checkresponse = await model.checkbooked();
-   if(checkresponse['status']==ResponseStatus.success){
-   if(checkresponse['data']['total_count']>0)
-   {
-      setState(() {
+    var checkresponse = await model.checkBooked();
+    if (checkresponse['status'] == ResponseStatus.success) {
+      if (checkresponse['data']['total_count'] > 0) {
+        setState(() {
+          isLoading = false;
+        });
+        setState(() {
+          isalreadyBooked = true;
+        });
+        Flushbar(
+          message: "Booked Already",
+          icon: Icon(
+            Icons.info_outline,
+            size: 28.0,
+            color: Colors.orange,
+          ),
+          duration: Duration(seconds: 2),
+          leftBarIndicatorColor: Colors.orange,
+        )..show(context);
+      } else {
+        int selectedId = int.parse(selectedLunchOption['value']);
+        var bookingresponse;
+        Map selectedExtraItem;
+        String selectedExtraItemValue;
+        if (selectedExtraMenus.isEmpty) {
+          bookingresponse = await model.booking(selectedId, "");
+        } else {
+          selectedExtraItem = selectedExtraMenus.first;
+          selectedExtraItemValue = selectedExtraItem['value'];
+          bookingresponse =
+              await model.booking(selectedId, selectedExtraItemValue);
+        }
+
+        if (bookingresponse['status'] == ResponseStatus.success) {
+          setState(() {
+            isLoading = false;
+          });
+          setState(() {
+            isBooked = true;
+          });
+          setState(() {
+            isEnabled = false;
+          });
+          setState(() {
+            selectedExtraMenus.clear();
+          });
+          Flushbar(
+            message: "Booked Successfully",
+            icon: Icon(
+              Icons.check,
+              size: 28.0,
+              color: Colors.green,
+            ),
+            duration: Duration(seconds: 2),
+            leftBarIndicatorColor: Colors.green,
+          )..show(context);
+        } else {
+          FlushBarHelper.show(this.stateMVC.context,
+              message: bookingresponse['message']);
+        }
+      }
+    } else {
+      print(checkresponse['message']);
+    }
+  }
+
+  void cancelLunch(BuildContext context) async {
+    var checkresponse = await model.checkBooked();
+    if (checkresponse['status'] == ResponseStatus.success) {
+      if (checkresponse['data']['total_count'] > 0) {
+        userID = checkresponse['data']['time_entries'][0]['id'];
+        model.mySharedPreferences.setInt('userid', userID);
+        var cancelresponse = await model.cancelBooked();
+        //print(cancelresponse);
+        if (cancelresponse['status'] == ResponseStatus.success) {
+          setState(() {
+            isalreadyBooked = false;
+          });
+          setState(() {
+            isCancelled = true;
+          });
+          setState(() {
+            isBooked = false;
+          });
+          setState(() {
+            isEnabled = true;
+          });
+
+          Flushbar(
+            message: "Cancelled",
+            icon: Icon(
+              Icons.cancel,
+              size: 28.0,
+              color: Colors.red,
+            ),
+            duration: Duration(seconds: 2),
+            leftBarIndicatorColor: Colors.red,
+          )..show(context);
+        } else {
+          print(cancelresponse['message']);
+        }
+      }
+    } else {
+      print(checkresponse['message']);
+    }
+
+    setState(() {
       isLoading = false;
     });
-    setState(() {
-      isalreadyBooked = true;
-    });
-    
- Flushbar(
-  message: "Booked Already",
-  icon: Icon(
-    Icons.info_outline,
-    size: 28.0,
-    color: Colors.red,
-    ),
-  duration: Duration(seconds: 3),
-  leftBarIndicatorColor: Colors.red,
-)..show(context);
-   
-   }
-   else{
-     var bookingresponse=await model.booking();
- if(bookingresponse['status']==ResponseStatus.success){
-    setState(() {
-      isLoading = false;
-    });
-    setState(() {
-      isBooked = true;
-    });
-     Flushbar(
-  message: "Booked Successfully",
-  icon: Icon(
-    Icons.info_outline,
-    size: 28.0,
-    color: Colors.green,
-    ),
-  duration: Duration(seconds: 3),
-  leftBarIndicatorColor: Colors.red,
-)..show(context);
-//print("booked successfully");
- }
-   }
-   }else{
-     print(checkresponse['message']);
-   }
+  }
 
-}
-void cancelLunch(BuildContext context) async
-{
-   var checkresponse = await model.checkbooked();
-   if(checkresponse['status']==ResponseStatus.success){
-   if(checkresponse['data']['total_count']>0)
-   {
-     userID =checkresponse['data']['time_entries'][0]['id'];
- model.mySharedPreferences.setInt('userid',userID);
- var cancelresponse = await model.cancelbooked();
- print(cancelresponse);
- if(cancelresponse['status']==ResponseStatus.success){
-setState(() {
-      isCancelled = true;
-    });
-  setState(() {
-      isBooked =false;
-    });  
-     Flushbar(
-  message: "Cancelled",
-  icon: Icon(
-    Icons.info_outline,
-    size: 28.0,
-    color: Colors.red,
-    ),
-  duration: Duration(seconds: 3),
-  leftBarIndicatorColor: Colors.red,
-)..show(context);
-   }
-   else{
-     print(cancelresponse['message']);
-   }
-}}
-else{
-     print(checkresponse['message']);
-   }
-
-}
-void fetchmenuitems (BuildContext context) async {
-
- var fetchresponse = await model.menuitems();
- 
-setState(() {
-  print(fetchresponse['data']['custom_fields']);
-      data = fetchresponse['data']!=null?fetchresponse['data']['custom_fields']:List();
-    });
-
-    //print("hello");
-
-}
-void lunchcancelDialog(BuildContext context) async {
+  void lunchcancelDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button for close dialog!
+      barrierDismissible: false,
       builder: (BuildContext contexts) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
           title: Text(
             'Cancel your Lunch',
+            // style: TextStyle(color:Colors.red),
             textAlign: TextAlign.center,
           ),
-          content: const Text('Are you sure you want to cancel?'),
+          content: const Text(
+            'Are you sure you want to cancel?',
+            //style: TextStyle(color:AppColors.themeColor),
+          ),
           actions: <Widget>[
             FlatButton(
-              child: const Text('No'),
+              child: const Text(
+                'No',
+                style: TextStyle(color: Colors.red),
+              ),
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
             FlatButton(
-              child: const Text('Yes'),
+              child: const Text(
+                'Yes',
+                style: TextStyle(color: AppColors.themeColor),
+              ),
               onPressed: () {
-               cancelLunch(context);
+                setState(() {
+                  isLoading = true;
+                });
+
+                cancelLunch(context);
                 Navigator.pop(context);
               },
             )
@@ -189,5 +273,4 @@ void lunchcancelDialog(BuildContext context) async {
       },
     );
   }
-
 }
