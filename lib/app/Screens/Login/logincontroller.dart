@@ -8,6 +8,7 @@ import 'package:flushbar/flushbar.dart';
 import 'loginmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+
 class Controller extends ControllerMVC {
   //final log = getLogger('template');
   factory Controller() {
@@ -19,11 +20,11 @@ class Controller extends ControllerMVC {
   Controller._();
 
   static Controller get controller => _this;
- // AppController appController;
+  // AppController appController;
 
   Map loginData = {"username": "", "password": ""};
 
-  Model model=Model(DataAuthScreenRepository());
+  Model model = Model(DataAuthScreenRepository());
   //Router _router = Router();
   FocusNode get usernameNode => model.usernameNode;
   FocusNode get passwordNode => model.passwordNode;
@@ -36,7 +37,6 @@ class Controller extends ControllerMVC {
   set isAutoValidateMode(boolean) => model.isAutoValidateMode = boolean;
   set isLoading(value) => model.isLoading = value;
 
-
   get errorMessage => model.errorMessage;
   set errorMessage(value) => model.errorMessage = value;
 
@@ -44,7 +44,7 @@ class Controller extends ControllerMVC {
   void initState() {
     //runs first, avoid using this unless mandatory
     super.initState();
-   // appController = AppController.controller;
+    // appController = AppController.controller;
   }
 
   @override
@@ -55,53 +55,55 @@ class Controller extends ControllerMVC {
   }
 
   init() async {
-     model.mySharedPreferences =
-        await SharedPreferences.getInstance();
+    model.mySharedPreferences = await SharedPreferences.getInstance();
   }
-
 
   void onLoginPressed(BuildContext context) {
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
-       setState(() {
-      isLoading = true;
-    });
+      setState(() {
+        isLoading = true;
+      });
       login(context);
     } else {
       setState(() {
         isAutoValidateMode = true;
       });
     }
-  
   }
 
   void login(BuildContext context) async {
-        setState(() {
+    setState(() {
       isLoading = true;
     });
-    String params = base64.encode(utf8.encode(loginData["username"]+":"+loginData["password"]));
-    model.mySharedPreferences.setString(Preferences.auth_token,params );
+    model.mySharedPreferences
+        .setString(Preferences.login_token, loginData["username"]);
+    String params = base64.encode(
+        utf8.encode(loginData["username"] + ":" + loginData["password"]));
+    model.mySharedPreferences.setString(Preferences.auth_token, params);
+
     var response = await model.login();
- 
-    if(response['status']==ResponseStatus.success){
-Navigator.push( this.stateMVC.context,MaterialPageRoute(builder: (context) => Homescreen()), );
-    }else{
-     // print(response['message']);
-  setState(() {
-      isLoading = false;
-    });
-   Flushbar(
-  message: response['message'],
-  icon: Icon(
-    Icons.info_outline,
-    size: 28.0,
-    color: Colors.red,
-    ),
-  duration: Duration(seconds: 3),
-  leftBarIndicatorColor: Colors.red,
-)..show(context);
-  
+
+    if (response['status'] == ResponseStatus.success) {
+      Navigator.push(
+        this.stateMVC.context,
+        MaterialPageRoute(builder: (context) => Homescreen()),
+      );
+    } else {
+      // print(response['message']);
+      setState(() {
+        isLoading = false;
+      });
+      Flushbar(
+        message: response['message'],
+        icon: Icon(
+          Icons.info_outline,
+          size: 28.0,
+          color: Colors.red,
+        ),
+        duration: Duration(seconds: 3),
+        leftBarIndicatorColor: Colors.red,
+      )..show(context);
     }
-   
   }
 }

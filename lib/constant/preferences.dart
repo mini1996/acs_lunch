@@ -2,7 +2,7 @@ class Preferences {
   Preferences._();
 
   static const String auth_token = "authToken";
-   //static const String menu_token = "bWluaTptaW5pQDEyMw==";
+  static const String login_token = "loginUser";
   static const String isLoggedIn = "isLoggedIn";
   static const String userId = "userId";
   static const String userServerId = "serverIdOfUser";

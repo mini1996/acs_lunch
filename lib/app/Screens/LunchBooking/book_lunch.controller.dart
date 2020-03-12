@@ -31,6 +31,8 @@ class Controller extends ControllerMVC {
   get selectedExtraMenus => model.selectedExtraMenus;
   set selectedExtraMenus(selectedExtraMenus) =>
       model.selectedExtraMenus = selectedExtraMenus;
+  get selectedExtraItemValue => model.selectedExtraItemValue;
+  set selectedExtraItemValue(value) => model.selectedExtraItemValue = value;
   set isLoading(value) => model.isLoading = value;
   get isLoading => model.isLoading;
   set isBooked(value) => model.isBooked = value;
@@ -65,6 +67,21 @@ class Controller extends ControllerMVC {
     model.mySharedPreferences = await SharedPreferences.getInstance();
     fetchMenuItems();
     fetchSpecialMenuItems();
+    checkBookCount();
+  }
+
+  checkBookCount() async {
+    var checkresponse = await model.checkBooked();
+    if (checkresponse['status'] == ResponseStatus.success) {
+      if (checkresponse['data']['total_count'] > 0) {
+        var parsedData =
+            model.parseBookedItems(checkresponse['data']['time_entries']);
+        setState(() {
+          model.selectedExtraItemValue = parsedData['optionalItem'];
+          model.isalreadyBooked = true;
+        });
+      }
+    }
   }
 
   void fetchMenuItems() async {
@@ -73,14 +90,15 @@ class Controller extends ControllerMVC {
     if (fetchresponse['status'] == ResponseStatus.success) {
       // log.d('sdfdb ${fetchresponse['data']}');
       options = fetchresponse['data'];
-      selectedLunchOption =
-          fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
+      // selectedLunchOption =
+      //     fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
       setState(() {
         model.loaderStatus = LoaderStatus.loaded;
       });
     } else {
       setState(() {
         model.loaderStatus = LoaderStatus.error;
+        model.errorMessage = fetchresponse['message'];
       });
 
       FlushBarHelper.show(this.stateMVC.context,
@@ -135,11 +153,24 @@ class Controller extends ControllerMVC {
           duration: Duration(seconds: 2),
           leftBarIndicatorColor: Colors.orange,
         )..show(context);
+      } else if (selectedLunchOption == null) {
+        setState(() {
+          isLoading = false;
+        });
+        Flushbar(
+          message: "please select your menu",
+          icon: Icon(
+            Icons.info_outline,
+            size: 28.0,
+            color: Colors.red,
+          ),
+          duration: Duration(seconds: 2),
+          leftBarIndicatorColor: Colors.red,
+        )..show(context);
       } else {
         int selectedId = int.parse(selectedLunchOption['value']);
         var bookingresponse;
         Map selectedExtraItem;
-        String selectedExtraItemValue;
         if (selectedExtraMenus.isEmpty) {
           bookingresponse = await model.booking(selectedId, "");
         } else {
@@ -156,9 +187,7 @@ class Controller extends ControllerMVC {
           setState(() {
             isBooked = true;
           });
-          setState(() {
-            isEnabled = false;
-          });
+
           setState(() {
             selectedExtraMenus.clear();
           });
@@ -194,14 +223,12 @@ class Controller extends ControllerMVC {
           setState(() {
             isalreadyBooked = false;
           });
+
           setState(() {
             isCancelled = true;
           });
           setState(() {
             isBooked = false;
-          });
-          setState(() {
-            isEnabled = true;
           });
 
           Flushbar(

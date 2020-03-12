@@ -25,7 +25,6 @@ class Settings {
   static get thumbnailPath async {
     return await path + THUMBNAILPATH;
   }
-  //static const String  nggtgg =_controller.selectedOption;
 
   static Map timeEntry(int selectedLunchMenuId, String specialItemValue) {
     return {
@@ -38,7 +37,7 @@ class Settings {
           {"id": 41, "value": selectedLunchMenuId.toString()},
           {"id": 47, "value": specialItemValue}
         ],
-        "comments": "I need meals(with one chapati) today"
+        "comments": "I need meals today"
       }
     };
   }

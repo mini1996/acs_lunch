@@ -1,6 +1,7 @@
 import 'package:acs_lunch/app/Screens/Home/homemodel.dart';
 import 'package:acs_lunch/app/Screens/LunchBooking/book_lunch.view.dart';
 import 'package:acs_lunch/app/utils/http_helper.dart';
+import 'package:acs_lunch/constant/preferences.dart';
 import 'package:acs_lunch/utils/flushbar.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,8 @@ class Controller extends ControllerMVC {
 
   Model model = Model();
   get loaderStatus => model.loaderStatus;
+  get loginUser => model.loginUser;
+  set loginUser(value) => model.loginUser = value;
   get currentmonthname => model.currentmonthname;
   set currentmonthname(value) => model.currentmonthname = value;
   get previousmonthname => model.previousmonthname;
@@ -56,6 +59,7 @@ class Controller extends ControllerMVC {
 
   init() async {
     model.mySharedPreferences = await SharedPreferences.getInstance();
+    loginUser = model.mySharedPreferences.getString(Preferences.login_token);
     monthNames();
     await fetchLunchCountMonthWise();
   }
@@ -82,7 +86,9 @@ class Controller extends ControllerMVC {
     } else {
       setState(() {
         model.loaderStatus = LoaderStatus.error;
+        model.errorMessage = lunchCountResponse['message'];
       });
+
       FlushBarHelper.show(this.stateMVC.context,
           message: lunchCountResponse['message']);
     }

@@ -1,9 +1,10 @@
+import 'package:acs_lunch/app/Screens/Home/homemodel.dart';
 import 'package:acs_lunch/constant/app_theme.dart';
+import 'package:acs_lunch/constant/preferences.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'homecontroller.dart';
-import 'dart:io';
 
 class Homescreen extends StatefulWidget {
   Homescreen({Key key, this.title}) : super(key: key);
@@ -41,85 +42,129 @@ class _HomescreenState extends StateMVC<Homescreen> {
         List<dynamic> lastMonthData = _controller.dateWiseResults['lastMonth'];
         List<dynamic> currentMonthData =
             _controller.dateWiseResults['thisMonth'];
+        List<dynamic> lastMonthSpecialsData =
+            _controller.dateWiseResults['lastMonthSpecials'];
+        List<dynamic> currentMonthSpecialsData =
+            _controller.dateWiseResults['thisMonthSpecials'];
+
+        List<Widget> lastMonthSpecialsDataList = [];
+
+        lastMonthSpecialsData.forEach((data) {
+          lastMonthSpecialsDataList.add(Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                    width: 80,
+                    child: Text(
+                      data["name"],
+                      style: TextStyle(
+                          color: AppColors.themeColor,
+                          height: 1.2,
+                          fontSize: 15.0),
+                    )),
+                Text(
+                  data["count"].toString(),
+                  style: TextStyle(
+                      color: Colors.black, height: 1.2, fontSize: 15.0),
+                ),
+              ]));
+        }); //populate data
+
+        List<Widget> currentMonthSpecialsDataList = [];
+
+        currentMonthSpecialsData.forEach((data) {
+          currentMonthSpecialsDataList.add(Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                    width: 80,
+                    child: Text(
+                      data["name"],
+                      style: TextStyle(
+                          color: AppColors.themeColor,
+                          height: 1.2,
+                          fontSize: 15.0),
+                    )),
+                Text(
+                  data["count"].toString(),
+                  style: TextStyle(
+                      color: Colors.black, height: 1.2, fontSize: 15.0),
+                ),
+              ]));
+        });
+        //populate data
+        Widget cardUi(
+            String monthName, String lunchCount, int pay, List dataList) {
+          return Card(
+              elevation: 10.0,
+              child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(children: <Widget>[
+                    Text(
+                      monthName,
+                      style:
+                          TextStyle(color: Colors.blueAccent, fontSize: 15.0),
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Column(children: <Widget>[
+                            Text(
+                              'Bookings',
+                              style: TextStyle(
+                                color: AppColors.themeColor,
+                              ),
+                            ),
+                            Text(
+                              lunchCount,
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ]),
+                          Column(children: <Widget>[
+                            Text(
+                              'Payable',
+                              style: TextStyle(
+                                color: AppColors.themeColor,
+                              ),
+                            ),
+                            Text(
+                              pay.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ]),
+                          Row(
+                            children: dataList,
+                          )
+                        ])
+                  ])));
+        }
         return Container(
             child: new RefreshIndicator(
                 color: AppColors.themeColor,
                 displacement: 40,
                 onRefresh: _controller.fetchLunchCountMonthWise,
                 child: new ListView(children: <Widget>[
-                  Card(
-                      elevation: 10.0,
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(_controller.previousmonthname,
-                                      style:
-                                          TextStyle(color: Colors.blueAccent)),
-                                  Text(lastMonthData.length.toString(),
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 34.0))
-                                ],
-                              ),
-                              Material(
-                                  color: AppColors.themeColor,
-                                  borderRadius: BorderRadius.circular(24.0),
-                                  child: Center(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Icon(Icons.date_range,
-                                        color: Colors.white, size: 30.0),
-                                  )))
-                            ]),
-                      )),
-                  Card(
-                      elevation: 10.0,
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(_controller.currentmonthname,
-                                      style:
-                                          TextStyle(color: Colors.blueAccent)),
-                                  Text(currentMonthData.length.toString(),
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 34.0))
-                                ],
-                              ),
-                              Material(
-                                  color: AppColors.themeColor,
-                                  borderRadius: BorderRadius.circular(24.0),
-                                  child: Center(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Icon(Icons.date_range,
-                                        color: Colors.white, size: 30.0),
-                                  )))
-                            ]),
-                      )),
+                  cardUi(
+                      _controller.previousmonthname,
+                      lastMonthData.length.toString(),
+                      (lastMonthData.length * 10),
+                      lastMonthSpecialsDataList),
+                  cardUi(
+                      _controller.currentmonthname,
+                      currentMonthData.length.toString(),
+                      (currentMonthData.length * 10),
+                      currentMonthSpecialsDataList),
                 ])));
 
       case LoaderStatus.error:
         return Center(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-            child: Text(_controller.errorMessage),
+            child: Text(_controller.errorMessage ?? ""),
           ),
         );
     }
@@ -127,28 +172,32 @@ class _HomescreenState extends StateMVC<Homescreen> {
 
   @override
   Widget build(BuildContext context) {
+    //SharedPreferences mySharedPreferences;
     return WillPopScope(
         onWillPop: _controller.onWillPop,
         child: Scaffold(
             key: _controller.scaffoldKey,
             appBar: AppBar(
-              centerTitle: true,
+              //[[[[centerTitle: true,
               backgroundColor: AppColors.themeColor,
               elevation: 5.0,
               leading: Icon(Icons.home),
               title: Row(children: <Widget>[
-                Text('Home'),
+                Text('Welcome' + "  " + _controller.loginUser)
               ]),
             ),
             body: homeUi(),
             //
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                _controller.navigationPage(context);
-              },
-              backgroundColor: AppColors.themeColor,
-              icon: Icon(Icons.fastfood),
-              label: Text("Go to Lunch Booking"),
-            )));
+            floatingActionButton:
+                _controller.loaderStatus == LoaderStatus.loaded
+                    ? FloatingActionButton.extended(
+                        onPressed: () {
+                          _controller.navigationPage(context);
+                        },
+                        backgroundColor: AppColors.themeColor,
+                        icon: Icon(Icons.fastfood),
+                        label: Text("Go to Lunch Booking"),
+                      )
+                    : null));
   }
 }

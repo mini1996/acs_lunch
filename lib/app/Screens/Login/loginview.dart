@@ -40,7 +40,6 @@ class _LoginscreenState extends StateMVC<Loginscreen> {
     return TextStyle(
       color: AppColors.themeColor,
     );
-    //  fontSize: Theme.of(context).textTheme.body1.fontSize);
   }
 
   InputDecoration customTextDecoration(

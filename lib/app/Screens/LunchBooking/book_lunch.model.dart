@@ -13,6 +13,7 @@ class Model {
   bool isCancelled = false;
   bool isEnabled = true;
   String errorMessage;
+  String selectedExtraItemValue = "";
   SharedPreferences mySharedPreferences;
   LoaderStatus loaderStatus = LoaderStatus.loading;
   List options = List();
@@ -70,5 +71,29 @@ class Model {
     } catch (e) {
       return HttpHelper().provideResponse(status: ResponseStatus.error);
     }
+  }
+
+  parseBookedItems(List timeEntries) {
+    // var itemsResponse = await bookRepo.checkLunchBooked();
+
+    Map todaysEntry = timeEntries[0];
+    List customFields = todaysEntry['custom_fields'];
+
+    String optionalItem;
+    String mainItem;
+
+    customFields.forEach((customField) {
+      if (customField["id"] == 47) {
+        optionalItem = customField["value"];
+      }
+      if (customField["id"] == 41) {
+        mainItem = customField["value"];
+      }
+    });
+
+    return {
+      'mainItem': mainItem,
+      'optionalItem': optionalItem,
+    };
   }
 }

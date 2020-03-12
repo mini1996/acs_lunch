@@ -12,6 +12,7 @@ class Model {
   LoaderStatus loaderStatus = LoaderStatus.loading;
   String currentmonthname = "";
   String previousmonthname = "";
+  String loginUser = "";
   Map dateWiseResults;
   DateTime backButtonPressTime;
   final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -20,12 +21,8 @@ class Model {
   fetchLunchCount() async {
     var response = await bookRepo.lunchBookedMonthWiseEntries();
     if (response['status'] == ResponseStatus.success) {
-      // int lastMonthCount = 0;
-      // int thisMonthCount = 0;
       List lastMonthBookings = List();
       List currentMonthBookings = List();
-      // int chickenFryCount = 0;
-      // int fishFryCount = 0;
       var timeEntries = response['data']['time_entries'];
       for (Map timeEntry in timeEntries) {
         DateTime date = DateTime.parse(timeEntry['spent_on']);
@@ -35,36 +32,58 @@ class Model {
           currentMonthBookings.add(timeEntry);
         }
       }
-      // var extrasEntries = response['data']['time_entries']['custom_fields'];
-      // Map dataWithOptions = extrasEntries.firstWhere((item) {
-      //   return item['id'] == 47;
-      // });
-      // if ((dataWithOptions['value']) == "Chicken Fry") {
-      //   chickenFryCount++;
-      // }
-      // if ((dataWithOptions['value']) == "Fish Fry") {
-      //   fishFryCount++;
-      // }
-      // [{"name":"Lunch","count":20},{"name":"Chicken Fry","count":2},]
+      List<Map> currentMonthSpecials = [];
+      List<Map> lastMonthSpecials = [];
 
-      List<specialFormat> currentMonthSpecials = [];
       currentMonthBookings.forEach((eachday) {
         List<dynamic> customFields = eachday["custom_fields"];
-        String customItem = "";
-        customFields.forEach((ee) {
-          // if (ee["name"] == "Additional Item" && ee["name"] != null && ee["name"] != "") {
-          //   bool isExist = false;
-          //   currentMonthSpecials.forEach((e){
-          //     if(e.name == ssssssssssssss )
-          //   });
-          //   currentMonthSpecials.add(new specialFormat(ee["value"], 1));
-
-          // }
+        // String customItem = "";
+        customFields.forEach((customField) {
+          if (customField["id"] == 47 &&
+              customField["value"] != null &&
+              customField["value"] != "") {
+            bool isExists = false;
+            currentMonthSpecials.forEach((item) {
+              if (item["name"] == customField["value"]) {
+                isExists = true;
+                item["count"] += 1;
+              }
+            });
+            if (isExists == false) {
+              currentMonthSpecials.add(format(customField["value"], 1));
+            } else {
+              isExists = false;
+            }
+          }
+        });
+      });
+      lastMonthBookings.forEach((eachday) {
+        List<dynamic> customFields = eachday["custom_fields"];
+        // String customItem = "";
+        customFields.forEach((customField) {
+          if (customField["id"] == 47 &&
+              customField["value"] != null &&
+              customField["value"] != "") {
+            bool isExists = false;
+            lastMonthSpecials.forEach((item) {
+              if (item["name"] == customField["value"]) {
+                isExists = true;
+                item["count"] += 1;
+              }
+            });
+            if (isExists == false) {
+              lastMonthSpecials.add(format(customField["value"], 1));
+            } else {
+              isExists = false;
+            }
+          }
         });
       });
       response['data'] = {
         'thisMonth': currentMonthBookings,
         'lastMonth': lastMonthBookings,
+        'thisMonthSpecials': currentMonthSpecials,
+        'lastMonthSpecials': lastMonthSpecials
       };
       return response;
     } else
@@ -74,10 +93,4 @@ class Model {
   Map format(String name, int count) {
     return {"name": name, "count": count};
   }
-}
-
-class specialFormat {
-  String name;
-  int count;
-  specialFormat(this.name, this.count);
 }
