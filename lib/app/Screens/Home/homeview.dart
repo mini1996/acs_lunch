@@ -92,12 +92,12 @@ class _HomescreenState extends StateMVC<Homescreen> {
         Widget cardUi(
             String monthName, String lunchCount, int pay, List dataList) {
           return Card(
-              elevation: 5.0,
+              elevation: 3.0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(20),
                       topLeft: Radius.circular(20)),
-                  side: BorderSide(width: 3, color: AppColors.themeColor)),
+                  side: BorderSide(width: 2, color: AppColors.themeColor)),
               child: Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Column(children: <Widget>[
@@ -187,7 +187,7 @@ class _HomescreenState extends StateMVC<Homescreen> {
               elevation: 5.0,
               leading: Icon(Icons.home),
               title: Row(children: <Widget>[
-                Text('Welcome' + "  " + _controller.loginUser)
+                Text('Welcome  ${_controller.loginUser ?? ""}')
               ]),
             ),
             body: homeUi(),

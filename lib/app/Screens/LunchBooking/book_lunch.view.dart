@@ -137,15 +137,16 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
         ? Center(
             child: Card(
                 elevation: 10.0,
-                child: new Container(
-                  width: 300.0,
-                  height: 120.0,
+                child: SingleChildScrollView(
+                    child: new Container(
+                  width: 250.0,
+                  height: 150.0,
                   child: ListTile(
                     title: Text(
-                      "Your lunch is Booked",
+                      "\nYour lunch is Booked",
                       style: TextStyle(
                           color: AppColors.themeColor,
-                          fontWeight: FontWeight.w500,
+                          // fontWeight: FontWeight.w500,
                           fontSize: 15.0),
                     ),
                     subtitle: Column(
@@ -158,67 +159,65 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
                                 //fontWeight: FontWeight.w500,
                                 fontSize: 15.0),
                           ),
-                          // Text(
-                          //   _controller.selectedLunchOption['label'].toString(),
-                          //   style: TextStyle(
-                          //       color: AppColors.themeColor,
-                          //       //fontWeight: FontWeight.w500,
-                          //       fontSize: 15.0),
-                          // ),
                           Text(
-                            _controller.selectedExtraItemValue,
+                            _controller.selectedLunchOptionValue.toString(),
                             style: TextStyle(
                                 color: AppColors.themeColor,
                                 //fontWeight: FontWeight.w500,
                                 fontSize: 15.0),
+                          ),
+                          Text(
+                            _controller.selectedExtraItemValue,
+                            style: TextStyle(
+                                color: AppColors.themeColor, fontSize: 15.0),
                           )
                         ]),
                   ),
-                )))
+                ))))
         : Container();
   }
 
-  Widget cardMessage() {
-    return Card(
-        elevation: 10.0,
-        child: new Container(
-          width: 300.0,
-          height: 120.0,
-          child: ListTile(
-            title: Text(
-              "Your lunch is Booked",
-              style: TextStyle(
-                  color: AppColors.themeColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15.0),
-            ),
-            subtitle:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                "\nYou have booked:",
-                style: TextStyle(
-                    color: AppColors.themeColor,
-                    //fontWeight: FontWeight.w500,
-                    fontSize: 15.0),
-              ),
-              Text(
-                _controller.selectedLunchOption['label'].toString(),
-                style: TextStyle(
-                    color: AppColors.themeColor,
-                    //fontWeight: FontWeight.w500,
-                    fontSize: 15.0),
-              ),
-              Text(
-                _controller.selectedExtraItemValue,
-                style: TextStyle(
-                    color: AppColors.themeColor,
-                    //fontWeight: FontWeight.w500,
-                    fontSize: 15.0),
-              )
-            ]),
-          ),
-        ));
-  }
+  // Widget cardMessage() {
+  //   return Card(
+  //       elevation: 10.0,
+  //       child: new Container(
+  //         width: 300.0,
+  //         height: 120.0,
+  //         child: ListTile(
+  //           title: Text(
+  //             "Your lunch is Booked",
+  //             style: TextStyle(
+  //                 color: AppColors.themeColor,
+  //                 fontWeight: FontWeight.w500,
+  //                 fontSize: 15.0),
+  //           ),
+  //           subtitle:
+  //               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  //             Text(
+  //               "\nYou have booked:",
+  //               style: TextStyle(
+  //                   color: AppColors.themeColor,
+  //                   //fontWeight: FontWeight.w500,
+  //                   fontSize: 15.0),
+  //             ),
+  //             Text(
+  //               _controller.selectedLunchOption['label'].toString(),
+  //               style: TextStyle(
+  //                   color: AppColors.themeColor,
+  //                   //fontWeight: FontWeight.w500,
+  //                   fontSize: 15.0),
+  //             ),
+  //             Text(
+  //               _controller.selectedExtraItemValue,
+  //               style: TextStyle(
+  //                   color: AppColors.themeColor,
+  //                   //fontWeight: FontWeight.w500,
+  //                   fontSize: 15.0),
+  //             )
+  //           ]),
+  //         ),
+  //       ));
+  // }
 
   // Widget   successcard() {
   //   return _controller.isBooked && !_controller.isLoading
@@ -241,9 +240,9 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
             elevation: 10.0,
             onPressed: () {
               _controller.onBookingPressed(context);
-              setState(() {
-                _controller.isalreadyBooked = true;
-              });
+              // setState(() {
+              //   _controller.isalreadyBooked = true;
+              // });
             },
             backgroundColor: AppColors.themeColor,
             icon: Icon(Icons.fastfood),
@@ -269,7 +268,7 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
           child: SpinKitCircle(
             color: Colors.blue,
             size: 50.0,
-            duration: const Duration(seconds: 10),
+            //duration: const Duration(seconds: 10),
           ),
         );
         break;

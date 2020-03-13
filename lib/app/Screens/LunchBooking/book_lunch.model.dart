@@ -14,6 +14,7 @@ class Model {
   bool isEnabled = true;
   String errorMessage;
   String selectedExtraItemValue = "";
+  String selectedLunchOptionValue = "";
   SharedPreferences mySharedPreferences;
   LoaderStatus loaderStatus = LoaderStatus.loading;
   List options = List();
@@ -80,19 +81,21 @@ class Model {
     List customFields = todaysEntry['custom_fields'];
 
     String optionalItem;
-    String mainItem;
+    String mainItemId;
 
     customFields.forEach((customField) {
       if (customField["id"] == 47) {
         optionalItem = customField["value"];
       }
       if (customField["id"] == 41) {
-        mainItem = customField["value"];
+        mainItemId = customField["value"];
       }
     });
-
+    Map mainItem = options.firstWhere((lunchOption) {
+      return lunchOption['value'] == mainItemId;
+    });
     return {
-      'mainItem': mainItem,
+      'mainItem': mainItem['label'],
       'optionalItem': optionalItem,
     };
   }

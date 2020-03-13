@@ -28,6 +28,8 @@ class Controller extends ControllerMVC {
   get selectedLunchOption => model.selectedLunchOption;
   set selectedLunchOption(selectedLunchOption) =>
       model.selectedLunchOption = selectedLunchOption;
+  get selectedLunchOptionValue => model.selectedLunchOptionValue;
+  set selectedLunchOptionValue(value) => model.selectedLunchOptionValue = value;
   get selectedExtraMenus => model.selectedExtraMenus;
   set selectedExtraMenus(selectedExtraMenus) =>
       model.selectedExtraMenus = selectedExtraMenus;
@@ -65,19 +67,22 @@ class Controller extends ControllerMVC {
 
   init() async {
     model.mySharedPreferences = await SharedPreferences.getInstance();
-    fetchMenuItems();
-    fetchSpecialMenuItems();
-    checkBookCount();
+    await fetchMenuItems();
+    await fetchSpecialMenuItems();
+    await checkBookCount();
   }
 
   checkBookCount() async {
     var checkresponse = await model.checkBooked();
     if (checkresponse['status'] == ResponseStatus.success) {
       if (checkresponse['data']['total_count'] > 0) {
+        setState(() {
+          isalreadyBooked = true;
+        });
         var parsedData =
             model.parseBookedItems(checkresponse['data']['time_entries']);
         setState(() {
-          // selectedLunchOption = parsedData['mainItem'];
+          selectedLunchOptionValue = parsedData['mainItem'];
           selectedExtraItemValue = parsedData['optionalItem'];
           model.isalreadyBooked = true;
         });
@@ -85,7 +90,7 @@ class Controller extends ControllerMVC {
     }
   }
 
-  void fetchMenuItems() async {
+  fetchMenuItems() async {
     var fetchresponse = await model.menuItems();
 
     if (fetchresponse['status'] == ResponseStatus.success) {
@@ -140,9 +145,8 @@ class Controller extends ControllerMVC {
       if (checkresponse['data']['total_count'] > 0) {
         setState(() {
           isLoading = false;
-        });
-        setState(() {
-          isalreadyBooked = true;
+
+          model.isalreadyBooked = true;
         });
         Flushbar(
           message: "Booked Already",
@@ -173,6 +177,7 @@ class Controller extends ControllerMVC {
           });
           setState(() {
             isBooked = true;
+            isalreadyBooked = true;
           });
 
           setState(() {
