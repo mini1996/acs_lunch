@@ -1,6 +1,4 @@
-import 'package:acs_lunch/app/Screens/Home/homemodel.dart';
 import 'package:acs_lunch/constant/app_theme.dart';
-import 'package:acs_lunch/constant/preferences.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -58,14 +56,13 @@ class _HomescreenState extends StateMVC<Homescreen> {
                     child: Text(
                       data["name"],
                       style: TextStyle(
-                          color: AppColors.themeColor,
-                          height: 1.2,
-                          fontSize: 15.0),
+                        color: AppColors.themeColor,
+                        height: 1.2,
+                      ),
                     )),
                 Text(
                   data["count"].toString(),
-                  style: TextStyle(
-                      color: Colors.black, height: 1.2, fontSize: 15.0),
+                  style: TextStyle(color: Colors.black, height: 1.2),
                 ),
               ]));
         }); //populate data
@@ -81,14 +78,13 @@ class _HomescreenState extends StateMVC<Homescreen> {
                     child: Text(
                       data["name"],
                       style: TextStyle(
-                          color: AppColors.themeColor,
-                          height: 1.2,
-                          fontSize: 15.0),
+                        color: AppColors.themeColor,
+                        height: 1.2,
+                      ),
                     )),
                 Text(
                   data["count"].toString(),
-                  style: TextStyle(
-                      color: Colors.black, height: 1.2, fontSize: 15.0),
+                  style: TextStyle(color: Colors.black, height: 1.2),
                 ),
               ]));
         });
@@ -96,17 +92,25 @@ class _HomescreenState extends StateMVC<Homescreen> {
         Widget cardUi(
             String monthName, String lunchCount, int pay, List dataList) {
           return Card(
-              elevation: 10.0,
+              elevation: 5.0,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(20),
+                      topLeft: Radius.circular(20)),
+                  side: BorderSide(width: 3, color: AppColors.themeColor)),
               child: Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Column(children: <Widget>[
                     Text(
                       monthName,
-                      style:
-                          TextStyle(color: Colors.blueAccent, fontSize: 15.0),
+                      style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.w500),
                     ),
+                    SizedBox(height: 20.0),
                     Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Column(children: <Widget>[
                             Text(

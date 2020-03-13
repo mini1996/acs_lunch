@@ -1,4 +1,3 @@
-
 import 'package:acs_lunch/app/domain/repository/auth_screen/auth_screen.respository.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,10 +12,10 @@ class Model {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
-SharedPreferences mySharedPreferences;
+  SharedPreferences mySharedPreferences;
 
-AuthScreenRepository loginRepo;
-login() async {
+  AuthScreenRepository loginRepo;
+  login() async {
     return await loginRepo.loginUser();
   }
 }

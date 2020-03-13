@@ -42,65 +42,67 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
   }
 
   Widget lunchmenu() {
-    return Container(
-        width: 300.0,
-        height: 50.0,
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-                width: 3.0,
-                style: BorderStyle.solid,
-                color: AppColors.themeColor),
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+    return Center(
+        child: Column(children: <Widget>[
+      Text(
+        "Select one of the Menu Items",
+        style:
+            TextStyle(color: AppColors.themeColor, fontWeight: FontWeight.w500),
+      ),
+      customSizedBox(height: 20.0),
+      Container(
+          width: 300.0,
+          height: 50.0,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                  width: 3.0,
+                  style: BorderStyle.solid,
+                  color: AppColors.themeColor),
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+            ),
           ),
-        ),
-        child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-                // isExpanded: true,
-                value: _controller.selectedLunchOption,
-                icon: Icon(Icons.arrow_drop_down),
-                iconSize: 24,
-                elevation: 16,
-                style: TextStyle(color: AppColors.themeColor),
-                items: _controller.options.map<DropdownMenuItem>((item) {
-                  print(item);
-                  return new DropdownMenuItem(
-                    child: Center(
-                        child: Container(
-                      height: 50.0,
-                      child: Padding(
-                          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(
-                                width: 200.0,
-                                child: Text(
-                                  item['label'],
-                                  style: TextStyle(
-                                      color: AppColors.themeColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15.0),
-                                ),
-                              )
-                            ],
-                          )),
-                    )),
-                    value: item,
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _controller.selectedLunchOption = newValue;
-                  });
-                },
-                hint: Padding(
-                  padding: EdgeInsets.only(left: 10.0),
-                  child: Text('Please select your menu',
-                      style: TextStyle(
-                          color: AppColors.themeColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.0)),
-                ))));
+          child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+            // isExpanded: true,
+            value: _controller.selectedLunchOption,
+            icon: Icon(Icons.arrow_drop_down),
+            iconSize: 24,
+            elevation: 16,
+            style: TextStyle(color: AppColors.themeColor),
+            items: _controller.options.map<DropdownMenuItem>((item) {
+              print(item);
+              return new DropdownMenuItem(
+                child: Center(
+                    child: Container(
+                  height: 50.0,
+                  child: Padding(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            width: 200.0,
+                            child: Text(
+                              item['label'],
+                              style: TextStyle(
+                                  color: AppColors.themeColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15.0),
+                            ),
+                          )
+                        ],
+                      )),
+                )),
+                value: item,
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              setState(() {
+                _controller.selectedLunchOption = newValue;
+              });
+            },
+          )))
+    ]));
   }
 
   Widget extraItems() {
@@ -132,23 +134,46 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
 
   Widget existcard() {
     return _controller.isalreadyBooked && !_controller.isLoading
-        ? Card(
-            elevation: 10.0,
-            child: new Container(
-                width: 300.0,
-                height: 50.0,
-                padding: new EdgeInsets.all(5.0),
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    new Text(
-                      "Your lunch is already Booked",
+        ? Center(
+            child: Card(
+                elevation: 10.0,
+                child: new Container(
+                  width: 300.0,
+                  height: 120.0,
+                  child: ListTile(
+                    title: Text(
+                      "Your lunch is Booked",
                       style: TextStyle(
                           color: AppColors.themeColor,
                           fontWeight: FontWeight.w500,
                           fontSize: 15.0),
                     ),
-                  ],
+                    subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "\nYou have booked:",
+                            style: TextStyle(
+                                color: AppColors.themeColor,
+                                //fontWeight: FontWeight.w500,
+                                fontSize: 15.0),
+                          ),
+                          // Text(
+                          //   _controller.selectedLunchOption['label'].toString(),
+                          //   style: TextStyle(
+                          //       color: AppColors.themeColor,
+                          //       //fontWeight: FontWeight.w500,
+                          //       fontSize: 15.0),
+                          // ),
+                          Text(
+                            _controller.selectedExtraItemValue,
+                            style: TextStyle(
+                                color: AppColors.themeColor,
+                                //fontWeight: FontWeight.w500,
+                                fontSize: 15.0),
+                          )
+                        ]),
+                  ),
                 )))
         : Container();
   }
@@ -195,11 +220,11 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
         ));
   }
 
-  Widget successcard() {
-    return _controller.isBooked && !_controller.isLoading
-        ? cardMessage()
-        : existcard();
-  }
+  // Widget   successcard() {
+  //   return _controller.isBooked && !_controller.isLoading
+  //       ? cardMessage()
+  //       : existcard();
+  // }
 
   Widget bookOrCancelButton() {
     return _controller.isalreadyBooked
@@ -229,8 +254,11 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
   Widget floatingButton(BuildContext context) {
     return _controller.isLoading
         ? new Center(
-            child: CircularProgressIndicator(
-                strokeWidth: 5, backgroundColor: AppColors.themeColor))
+            child: SpinKitCircle(
+              color: Colors.blue,
+              size: 50.0,
+            ),
+          )
         : bookOrCancelButton();
   }
 
@@ -241,21 +269,24 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
           child: SpinKitCircle(
             color: Colors.blue,
             size: 50.0,
+            duration: const Duration(seconds: 10),
           ),
         );
         break;
       case LoaderStatus.loaded:
-        return SingleChildScrollView(
-            child: Column(
-          children: <Widget>[
-            customSizedBox(height: 70.0),
-            lunchmenu(),
-            customSizedBox(height: 50.0),
-            extraItems(),
-            customSizedBox(height: 20.0),
-            successcard(),
-          ],
-        ));
+        return _controller.isalreadyBooked
+            ? existcard()
+            : SingleChildScrollView(
+                child: Column(
+                children: <Widget>[
+                  customSizedBox(height: 50.0),
+                  lunchmenu(),
+                  customSizedBox(height: 50.0),
+                  extraItems(),
+                  customSizedBox(height: 20.0),
+                  //  successcard(),
+                ],
+              ));
 
       case LoaderStatus.error:
         return Center(

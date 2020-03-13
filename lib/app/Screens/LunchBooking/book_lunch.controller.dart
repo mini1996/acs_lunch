@@ -77,7 +77,8 @@ class Controller extends ControllerMVC {
         var parsedData =
             model.parseBookedItems(checkresponse['data']['time_entries']);
         setState(() {
-          model.selectedExtraItemValue = parsedData['optionalItem'];
+          // selectedLunchOption = parsedData['mainItem'];
+          selectedExtraItemValue = parsedData['optionalItem'];
           model.isalreadyBooked = true;
         });
       }
@@ -90,8 +91,8 @@ class Controller extends ControllerMVC {
     if (fetchresponse['status'] == ResponseStatus.success) {
       // log.d('sdfdb ${fetchresponse['data']}');
       options = fetchresponse['data'];
-      // selectedLunchOption =
-      //     fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
+      selectedLunchOption =
+          fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
       setState(() {
         model.loaderStatus = LoaderStatus.loaded;
       });
@@ -152,20 +153,6 @@ class Controller extends ControllerMVC {
           ),
           duration: Duration(seconds: 2),
           leftBarIndicatorColor: Colors.orange,
-        )..show(context);
-      } else if (selectedLunchOption == null) {
-        setState(() {
-          isLoading = false;
-        });
-        Flushbar(
-          message: "please select your menu",
-          icon: Icon(
-            Icons.info_outline,
-            size: 28.0,
-            color: Colors.red,
-          ),
-          duration: Duration(seconds: 2),
-          leftBarIndicatorColor: Colors.red,
         )..show(context);
       } else {
         int selectedId = int.parse(selectedLunchOption['value']);
