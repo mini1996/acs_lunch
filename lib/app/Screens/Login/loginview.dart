@@ -101,80 +101,78 @@ class _LoginscreenState extends StateMVC<Loginscreen> {
     return Form(
       key: _controller.formKey,
       autovalidate: _controller.isAutoValidateMode,
-      child: Center(
-        child: Column(
-          children: <Widget>[
-            customSizedBox(height: 150.0),
-            Container(
-              height: 100.0,
-              child: Image.asset("lib/assets/loginscreenlogo.png"),
+      child: Column(
+        children: <Widget>[
+          customSizedBox(height: 150.0),
+          Container(
+            height: 100.0,
+            child: Image.asset("lib/assets/loginscreenlogo.png"),
+          ),
+          customSizedBox(height: 20.0),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 40.0),
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  controller: _controller.userNameController,
+                  enabled: true,
+                  //   autofocus: true,
+                  focusNode: _controller.usernameNode,
+                  style: customTextStyle(),
+                  cursorColor: Colors.blueAccent,
+                  textInputAction: TextInputAction.next,
+                  decoration: customTextDecoration(
+                      Strings.usernameLabel, Icons.person, context),
+                  textCapitalization: TextCapitalization.none,
+                  onFieldSubmitted: (term) {
+                    fieldFocusChange(context, _controller.usernameNode,
+                        _controller.passwordNode);
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return Strings.usernameEmptyMessage;
+                    }
+                  },
+                  onSaved: (String value) {
+                    _controller.loginData["username"] = value;
+                  },
+                ),
+                TextFormField(
+                  enabled: true,
+                  controller: _controller.passwordController,
+                  obscureText: !_passwordVisible,
+                  textInputAction: TextInputAction.done,
+                  style: customTextStyle(),
+                  cursorColor: Colors.blueAccent,
+                  focusNode: _controller.passwordNode,
+                  decoration: customTextDecoration(
+                      Strings.passwordLabel, Icons.lock, context,
+                      secure: true),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return Strings.passwordEmptyMessage;
+                    }
+                  },
+                  onSaved: (String value) {
+                    _controller.loginData["password"] = value;
+                  },
+                  onFieldSubmitted: (term) {
+                    _controller.passwordNode.unfocus();
+                    _controller.onLoginPressed(context);
+                  },
+                ),
+                customSizedBox(height: 15.0),
+                Text(
+                  _controller.errorMessage ?? "",
+                  style: TextStyle(color: Theme.of(context).errorColor),
+                ),
+                customSizedBox(height: 2.0),
+                loginButton(context),
+                customSizedBox(height: 30.0),
+              ],
             ),
-            customSizedBox(height: 20.0),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 40.0),
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    controller: _controller.userNameController,
-                    enabled: true,
-                    //   autofocus: true,
-                    focusNode: _controller.usernameNode,
-                    style: customTextStyle(),
-                    cursorColor: Colors.blueAccent,
-                    textInputAction: TextInputAction.next,
-                    decoration: customTextDecoration(
-                        Strings.usernameLabel, Icons.person, context),
-                    textCapitalization: TextCapitalization.none,
-                    onFieldSubmitted: (term) {
-                      fieldFocusChange(context, _controller.usernameNode,
-                          _controller.passwordNode);
-                    },
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return Strings.usernameEmptyMessage;
-                      }
-                    },
-                    onSaved: (String value) {
-                      _controller.loginData["username"] = value;
-                    },
-                  ),
-                  TextFormField(
-                    enabled: true,
-                    controller: _controller.passwordController,
-                    obscureText: !_passwordVisible,
-                    textInputAction: TextInputAction.done,
-                    style: customTextStyle(),
-                    cursorColor: Colors.blueAccent,
-                    focusNode: _controller.passwordNode,
-                    decoration: customTextDecoration(
-                        Strings.passwordLabel, Icons.lock, context,
-                        secure: true),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return Strings.passwordEmptyMessage;
-                      }
-                    },
-                    onSaved: (String value) {
-                      _controller.loginData["password"] = value;
-                    },
-                    onFieldSubmitted: (term) {
-                      _controller.passwordNode.unfocus();
-                      _controller.onLoginPressed(context);
-                    },
-                  ),
-                  customSizedBox(height: 15.0),
-                  Text(
-                    _controller.errorMessage ?? "",
-                    style: TextStyle(color: Theme.of(context).errorColor),
-                  ),
-                  customSizedBox(height: 2.0),
-                  loginButton(context),
-                  customSizedBox(height: 30.0),
-                ],
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

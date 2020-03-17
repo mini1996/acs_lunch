@@ -32,12 +32,19 @@ class LunchBookingRepository {
   }
 
   lunchBookedMonthWiseEntries() async {
+    SharedPreferences mySharedPreferences;
+    mySharedPreferences = await SharedPreferences.getInstance();
+    String loginUserIdValue =
+        mySharedPreferences.getInt('loginTokenId').toString();
     var dateFormatter = DateFormat("yyyy-MM-dd");
     final currentDate = DateTime.now();
     var prevMonth = new DateTime(currentDate.year, currentDate.month - 1, 1);
     String requestFormat =
         "><${dateFormatter.format(prevMonth)}|${dateFormatter.format(currentDate)}";
-    var fetchUrl = Endpoints.checkBookingUrl + requestFormat;
+    var fetchUrl = Endpoints.checkBookingUrl +
+        requestFormat +
+        "&user_id=" +
+        loginUserIdValue;
     // print(fetchUrl);
     return await httpHelper.request(HttpMethods.get,
         endPoint: fetchUrl, authenticationRequired: true);

@@ -13,6 +13,7 @@ class Model {
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
   String loginUserName = "";
+  int loginId;
   SharedPreferences mySharedPreferences;
   var internetSubscription;
   bool isInternetAvailable = true;

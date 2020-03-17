@@ -9,7 +9,7 @@ class Preferences {
   static const String otp = "otp";
   static const String phone = "phone";
   static const String userName = "user_name";
-
+  static const int loginUserId = 0;
   static const String refresh_token = "refreshToken";
 
   static const String appUsersCount = "app_users_count";

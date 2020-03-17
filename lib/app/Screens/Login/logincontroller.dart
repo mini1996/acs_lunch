@@ -40,7 +40,8 @@ class Controller extends ControllerMVC {
   set isLoading(value) => model.isLoading = value;
   get loginUserName => model.loginUserName;
   set loginUserName(value) => model.loginUserName = value;
-
+  get loginId => model.loginId;
+  set loginId(value) => model.loginId = value;
   get errorMessage => model.errorMessage;
   set errorMessage(value) => model.errorMessage = value;
 
@@ -104,8 +105,11 @@ class Controller extends ControllerMVC {
     if (response['status'] == ResponseStatus.success) {
       var data = response['data']['user'];
       loginUserName = data['firstname'];
+      loginId = data['id'];
+      print(loginId);
       model.mySharedPreferences
           .setString(Preferences.login_token, loginUserName);
+      model.mySharedPreferences.setInt('loginTokenId', loginId);
 
       // List<Map> data =
       //     response['data'] != null ? response['data']['user'] : List();
@@ -122,8 +126,9 @@ class Controller extends ControllerMVC {
       setState(() {
         isLoading = false;
       });
+
       Flushbar(
-        message: response['message'],
+        message: "Incorrect Username or Password ",
         icon: Icon(
           Icons.info_outline,
           size: 28.0,
