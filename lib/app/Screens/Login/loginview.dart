@@ -103,7 +103,7 @@ class _LoginscreenState extends StateMVC<Loginscreen> {
       autovalidate: _controller.isAutoValidateMode,
       child: Column(
         children: <Widget>[
-          customSizedBox(height: 150.0),
+          customSizedBox(height: 100.0),
           Container(
             height: 100.0,
             child: Image.asset("lib/assets/loginscreenlogo.png"),
@@ -182,11 +182,9 @@ class _LoginscreenState extends StateMVC<Loginscreen> {
     //  _controller.context = context;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: _controller.isInternetAvailable
-          ? SingleChildScrollView(
-              // reverse: true,
-
-              child: loginUi())
+          ? SingleChildScrollView(child: loginUi())
           : Center(
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
