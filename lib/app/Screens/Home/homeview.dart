@@ -1,5 +1,6 @@
 import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:acs_lunch/utils/loader.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'homecontroller.dart';
@@ -29,6 +30,19 @@ class _HomescreenState extends StateMVC<Homescreen> {
     super.dispose();
   }
 
+  void redflushbar(BuildContext context, String msg) {
+    Flushbar(
+      message: msg,
+      icon: Icon(
+        Icons.info_outline,
+        size: 28.0,
+        color: Colors.red,
+      ),
+      duration: Duration(seconds: 3),
+      leftBarIndicatorColor: Colors.red,
+    )..show(context);
+  }
+
   Widget homeUi() {
     switch (_controller.loaderStatus) {
       case LoaderStatus.loading:
@@ -47,21 +61,21 @@ class _HomescreenState extends StateMVC<Homescreen> {
 
         List<Widget> lastMonthSpecialsDataList = [];
 
+        // print(now);
         lastMonthSpecialsData.forEach((data) {
           lastMonthSpecialsDataList.add(Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                    width: 80,
-                    child: Text(
-                      data["name"],
-                      style: TextStyle(
-                        color: AppColors.themeColor,
-                        height: 1.2,
-                      ),
-                    )),
+                Text(
+                  data["name"],
+                  style: TextStyle(
+                    color: AppColors.themeColor,
+                    height: 1.2,
+                  ),
+                ),
                 Text(
                   data["count"].toString(),
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.black, height: 1.2),
                 ),
               ]));
@@ -74,18 +88,17 @@ class _HomescreenState extends StateMVC<Homescreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Container(
-                    width: 80,
+                    // width: 80,
                     child: Text(
-                      data["name"],
-                      style: TextStyle(
-                        color: AppColors.themeColor,
-                        height: 1.2,
-                      ),
-                    )),
-                Text(
-                  data["count"].toString(),
-                  style: TextStyle(color: Colors.black, height: 1.2),
-                ),
+                  data["name"],
+                  style: TextStyle(
+                    color: AppColors.themeColor,
+                    height: 1.2,
+                  ),
+                )),
+                Text(data["count"].toString(),
+                    style: TextStyle(color: Colors.black, height: 1.2),
+                    textAlign: TextAlign.center),
               ]));
         });
         //populate data
@@ -109,41 +122,46 @@ class _HomescreenState extends StateMVC<Homescreen> {
                           fontWeight: FontWeight.w500),
                     ),
                     SizedBox(height: 20.0),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(children: <Widget>[
-                            Text(
-                              'Bookings',
-                              style: TextStyle(
-                                color: AppColors.themeColor,
-                              ),
-                            ),
-                            Text(
-                              lunchCount,
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ]),
-                          Column(children: <Widget>[
-                            Text(
-                              'Payable',
-                              style: TextStyle(
-                                color: AppColors.themeColor,
-                              ),
-                            ),
-                            Text(
-                              pay.toString(),
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ]),
-                          Row(
-                            children: dataList,
-                          )
-                        ])
+                    SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            //  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Column(children: <Widget>[
+                                Text(
+                                  'Bookings',
+                                  style: TextStyle(
+                                    color: AppColors.themeColor,
+                                  ),
+                                ),
+                                Text(
+                                  lunchCount,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ]),
+                              SizedBox(width: 20),
+                              Column(children: <Widget>[
+                                Text(
+                                  'Payable',
+                                  style: TextStyle(
+                                    color: AppColors.themeColor,
+                                  ),
+                                ),
+                                Text(
+                                  pay.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ]),
+                              SizedBox(width: 20),
+                              Wrap(
+                                spacing: 20,
+                                children: dataList,
+                              )
+                            ]))
                   ])));
         }
         return Container(
@@ -182,21 +200,31 @@ class _HomescreenState extends StateMVC<Homescreen> {
         child: Scaffold(
             key: _controller.scaffoldKey,
             appBar: AppBar(
-              //[[[[centerTitle: true,
-              backgroundColor: AppColors.themeColor,
-              elevation: 5.0,
-              leading: Icon(Icons.home),
-              title: Row(children: <Widget>[
-                Text('Welcome  ${_controller.loginUser ?? ""}')
-              ]),
-            ),
-            body: homeUi(),
+                //[[[[centerTitle: true,
+                backgroundColor: AppColors.themeColor,
+                leading: Icon(Icons.home),
+                title: Text('Welcome  ${_controller.loginUser ?? ""}')),
+            body: _controller.isInternetAvailable
+                ? homeUi()
+                : Center(
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                      child: Text("Please check your internet connection"),
+                    ),
+                  ),
             //
+
             floatingActionButton:
                 _controller.loaderStatus == LoaderStatus.loaded
                     ? FloatingActionButton.extended(
                         onPressed: () {
-                          _controller.navigationPage(context);
+                          if ((DateTime.now().hour >= 1) &&
+                              (DateTime.now().hour <= 10)) {
+                            _controller.navigationPage(context);
+                          } else {
+                            redflushbar(context, "Time up !");
+                          }
                         },
                         backgroundColor: AppColors.themeColor,
                         icon: Icon(Icons.fastfood),

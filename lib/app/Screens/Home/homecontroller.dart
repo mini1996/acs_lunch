@@ -4,6 +4,7 @@ import 'package:acs_lunch/app/utils/http_helper.dart';
 import 'package:acs_lunch/constant/preferences.dart';
 import 'package:acs_lunch/utils/flushbar.dart';
 import 'package:acs_lunch/utils/loader.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -25,6 +26,8 @@ class Controller extends ControllerMVC {
   Model model = Model();
   get loaderStatus => model.loaderStatus;
   get loginUser => model.loginUser;
+  get isInternetAvailable => model.isInternetAvailable;
+  set isInternetAvailable(boolean) => model.isInternetAvailable = boolean;
   set loginUser(value) => model.loginUser = value;
   get currentmonthname => model.currentmonthname;
   set currentmonthname(value) => model.currentmonthname = value;
@@ -53,11 +56,25 @@ class Controller extends ControllerMVC {
   @override
   void dispose() {
     //runs second
+    model.internetSubscription.cancel();
     _this = null;
     super.dispose();
   }
 
   init() async {
+    model.internetSubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      if (result == ConnectivityResult.none)
+        setState(() {
+          isInternetAvailable = false;
+        });
+      else
+        setState(() {
+          isInternetAvailable = true;
+        });
+    });
     model.mySharedPreferences = await SharedPreferences.getInstance();
     loginUser = model.mySharedPreferences.getString(Preferences.login_token);
     monthNames();
@@ -94,11 +111,14 @@ class Controller extends ControllerMVC {
     }
   }
 
-  void navigationPage(BuildContext context) {
-    Navigator.push(
+  void navigationPage(BuildContext context) async {
+    final result = await Navigator.push(
       this.stateMVC.context,
       MaterialPageRoute(builder: (context) => BookLunchScreen()),
     );
+    if (result == true) {
+      fetchLunchCountMonthWise();
+    }
   }
 
   Future<bool> onWillPop() async {

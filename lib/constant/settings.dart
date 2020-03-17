@@ -5,7 +5,7 @@ class Settings {
   Settings._();
   static const String appName = "appname";
   static const String baseUrl = "https://pm.agilecyber.co.uk";
-  static const httpRequestTimeout = const Duration(seconds: 20);
+  static const httpRequestTimeout = const Duration(seconds: 30);
 
   static get path async {
     Directory documentsDirectory = Platform.isAndroid

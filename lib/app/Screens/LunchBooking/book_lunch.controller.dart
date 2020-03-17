@@ -4,6 +4,7 @@ import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:acs_lunch/utils/flushbar.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:acs_lunch/utils/logger.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -29,10 +30,13 @@ class Controller extends ControllerMVC {
   set selectedLunchOption(selectedLunchOption) =>
       model.selectedLunchOption = selectedLunchOption;
   get selectedLunchOptionValue => model.selectedLunchOptionValue;
-  set selectedLunchOptionValue(value) => model.selectedLunchOptionValue = value;
+  set selectedLunchOptionValue(selectedLunchOptionValue) =>
+      model.selectedLunchOptionValue = selectedLunchOptionValue;
   get selectedExtraMenus => model.selectedExtraMenus;
   set selectedExtraMenus(selectedExtraMenus) =>
       model.selectedExtraMenus = selectedExtraMenus;
+  get isActionPerformed => model.isActionPerformed;
+  set isActionPerformed(boolean) => model.isActionPerformed = boolean;
   get selectedExtraItemValue => model.selectedExtraItemValue;
   set selectedExtraItemValue(value) => model.selectedExtraItemValue = value;
   set isLoading(value) => model.isLoading = value;
@@ -61,30 +65,45 @@ class Controller extends ControllerMVC {
   @override
   void dispose() {
     //runs second
+    //model.internetSubscription.cancel();
     _this = null;
     super.dispose();
   }
 
   init() async {
+    // model.internetSubscription = Connectivity()
+    //     .onConnectivityChanged
+    //     .listen((ConnectivityResult result) {
+    //   // Got a new connectivity status!
+    //   if(result==ConnectivityResult.none
+    //   setState((){
+    //     model.errorMessage=
+    //   });
+
+    // });
     model.mySharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      model.loaderStatus = LoaderStatus.loading;
+    });
+
     await fetchMenuItems();
     await fetchSpecialMenuItems();
     await checkBookCount();
+    setState(() {
+      model.loaderStatus = LoaderStatus.loaded;
+    });
   }
 
   checkBookCount() async {
     var checkresponse = await model.checkBooked();
     if (checkresponse['status'] == ResponseStatus.success) {
       if (checkresponse['data']['total_count'] > 0) {
-        setState(() {
-          isalreadyBooked = true;
-        });
         var parsedData =
             model.parseBookedItems(checkresponse['data']['time_entries']);
         setState(() {
+          model.isalreadyBooked = true;
           selectedLunchOptionValue = parsedData['mainItem'];
           selectedExtraItemValue = parsedData['optionalItem'];
-          model.isalreadyBooked = true;
         });
       }
     }
@@ -92,15 +111,11 @@ class Controller extends ControllerMVC {
 
   fetchMenuItems() async {
     var fetchresponse = await model.menuItems();
-
     if (fetchresponse['status'] == ResponseStatus.success) {
       // log.d('sdfdb ${fetchresponse['data']}');
       options = fetchresponse['data'];
       selectedLunchOption =
           fetchresponse['data'].length > 0 ? fetchresponse['data'][0] : null;
-      setState(() {
-        model.loaderStatus = LoaderStatus.loaded;
-      });
     } else {
       setState(() {
         model.loaderStatus = LoaderStatus.error;
@@ -112,16 +127,11 @@ class Controller extends ControllerMVC {
     }
   }
 
-  void fetchSpecialMenuItems() async {
+  fetchSpecialMenuItems() async {
     var fetchadditionalresponse = await model.specialMenuItems();
-
     if (fetchadditionalresponse['status'] == ResponseStatus.success) {
       // log.d('sdfdb ${fetchresponse['data']}');
       specialOptions = fetchadditionalresponse['data'];
-
-      setState(() {
-        model.loaderStatus = LoaderStatus.loaded;
-      });
     } else {
       setState(() {
         model.loaderStatus = LoaderStatus.error;
@@ -140,6 +150,9 @@ class Controller extends ControllerMVC {
   }
 
   void booking(BuildContext context) async {
+    selectedExtraItemValue = null;
+    selectedLunchOptionValue = null;
+
     var checkresponse = await model.checkBooked();
     if (checkresponse['status'] == ResponseStatus.success) {
       if (checkresponse['data']['total_count'] > 0) {
@@ -148,25 +161,21 @@ class Controller extends ControllerMVC {
 
           model.isalreadyBooked = true;
         });
-        Flushbar(
-          message: "Booked Already",
-          icon: Icon(
-            Icons.info_outline,
-            size: 28.0,
-            color: Colors.orange,
-          ),
-          duration: Duration(seconds: 2),
-          leftBarIndicatorColor: Colors.orange,
-        )..show(context);
       } else {
         int selectedId = int.parse(selectedLunchOption['value']);
+
         var bookingresponse;
         Map selectedExtraItem;
         if (selectedExtraMenus.isEmpty) {
+          selectedLunchOptionValue = selectedLunchOption['label'];
+          print("cjheck1 $selectedExtraItemValue");
+
           bookingresponse = await model.booking(selectedId, "");
         } else {
           selectedExtraItem = selectedExtraMenus.first;
           selectedExtraItemValue = selectedExtraItem['value'];
+          selectedLunchOptionValue = selectedLunchOption['label'];
+          print("cjheck $selectedExtraItemValue");
           bookingresponse =
               await model.booking(selectedId, selectedExtraItemValue);
         }
@@ -174,9 +183,8 @@ class Controller extends ControllerMVC {
         if (bookingresponse['status'] == ResponseStatus.success) {
           setState(() {
             isLoading = false;
-          });
-          setState(() {
-            isBooked = true;
+            isActionPerformed = true;
+            // isBooked = true;
             isalreadyBooked = true;
           });
 
@@ -214,6 +222,7 @@ class Controller extends ControllerMVC {
         if (cancelresponse['status'] == ResponseStatus.success) {
           setState(() {
             isalreadyBooked = false;
+            isActionPerformed = true;
           });
 
           setState(() {
@@ -244,6 +253,11 @@ class Controller extends ControllerMVC {
     setState(() {
       isLoading = false;
     });
+  }
+
+  onWillPop(BuildContext context) async {
+    Navigator.pop(context, isActionPerformed);
+    return false; //true sends it to previous page
   }
 
   void lunchcancelDialog(BuildContext context) async {

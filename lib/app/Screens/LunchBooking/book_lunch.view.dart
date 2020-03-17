@@ -1,5 +1,4 @@
 import 'package:acs_lunch/app/Screens/LunchBooking/book_lunch.model.dart';
-import 'package:acs_lunch/app/utils/http_helper.dart';
 import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +55,7 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
           decoration: ShapeDecoration(
             shape: RoundedRectangleBorder(
               side: BorderSide(
-                  width: 3.0,
+                  width: 2.0,
                   style: BorderStyle.solid,
                   color: AppColors.themeColor),
               borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -71,7 +70,7 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
             elevation: 16,
             style: TextStyle(color: AppColors.themeColor),
             items: _controller.options.map<DropdownMenuItem>((item) {
-              print(item);
+              //  print(item);
               return new DropdownMenuItem(
                 child: Center(
                     child: Container(
@@ -132,48 +131,94 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
     ]));
   }
 
-  Widget existcard() {
+  Widget existcard(String lunchMenu, String optionalMenu) {
     return _controller.isalreadyBooked && !_controller.isLoading
         ? Center(
-            child: Card(
-                elevation: 10.0,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+              child: Card(
+                elevation: 5.0,
                 child: SingleChildScrollView(
-                    child: new Container(
-                  width: 250.0,
-                  height: 150.0,
-                  child: ListTile(
-                    title: Text(
-                      "\nYour lunch is Booked",
-                      style: TextStyle(
-                          color: AppColors.themeColor,
-                          // fontWeight: FontWeight.w500,
-                          fontSize: 15.0),
+                  child: new Container(
+                    width: 250.0,
+                    height: 150.0,
+                    child: ListTile(
+                      title: Text(
+                        "\nYour lunch is Booked",
+                        style: TextStyle(
+                            color: AppColors.themeColor,
+                            // fontWeight: FontWeight.w500,
+                            fontSize: 15.0),
+                      ),
+                      subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "\nYou have booked:",
+                              style: TextStyle(
+                                  color: AppColors.themeColor,
+                                  //fontWeight: FontWeight.w500,
+                                  fontSize: 15.0),
+                            ),
+                            RichText(
+                                text: TextSpan(children: [
+                              lunchMenu != "" && lunchMenu != null
+                                  ? WidgetSpan(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                        child: Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    )
+                                  : WidgetSpan(
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2.0))),
+                              TextSpan(
+                                text: lunchMenu,
+                                //  _controller.selectedLunchOption['label'].toString(),
+
+                                style: TextStyle(
+                                    color: AppColors.themeColor,
+                                    //fontWeight: FontWeight.w500,
+                                    fontSize: 15.0),
+                              )
+                            ])),
+                            RichText(
+                                text: TextSpan(children: [
+                              optionalMenu != "" && optionalMenu != null
+                                  ? WidgetSpan(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                        child: Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    )
+                                  : WidgetSpan(
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 2.0))),
+                              TextSpan(
+                                text: optionalMenu,
+                                style: TextStyle(
+                                    color: AppColors.themeColor,
+                                    //fontWeight: FontWeight.w500,
+                                    fontSize: 15.0),
+                              )
+                            ])),
+                          ]),
                     ),
-                    subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "\nYou have booked:",
-                            style: TextStyle(
-                                color: AppColors.themeColor,
-                                //fontWeight: FontWeight.w500,
-                                fontSize: 15.0),
-                          ),
-                          Text(
-                            _controller.selectedLunchOptionValue.toString(),
-                            style: TextStyle(
-                                color: AppColors.themeColor,
-                                //fontWeight: FontWeight.w500,
-                                fontSize: 15.0),
-                          ),
-                          Text(
-                            _controller.selectedExtraItemValue,
-                            style: TextStyle(
-                                color: AppColors.themeColor, fontSize: 15.0),
-                          )
-                        ]),
                   ),
-                ))))
+                ),
+              ),
+            ),
+          )
         : Container();
   }
 
@@ -274,7 +319,8 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
         break;
       case LoaderStatus.loaded:
         return _controller.isalreadyBooked
-            ? existcard()
+            ? existcard(_controller.selectedLunchOptionValue,
+                _controller.selectedExtraItemValue)
             : SingleChildScrollView(
                 child: Column(
                 children: <Widget>[
@@ -282,7 +328,7 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
                   lunchmenu(),
                   customSizedBox(height: 50.0),
                   extraItems(),
-                  customSizedBox(height: 20.0),
+                  // customSizedBox(height: 20.0),
                   //  successcard(),
                 ],
               ));
@@ -299,17 +345,23 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: AppColors.themeColor,
-          elevation: 5.0,
-          title: Text('Book your lunch'),
-        ),
-        body: lunchUI(),
-        floatingActionButton: _controller.loaderStatus == LoaderStatus.loaded
-            ? floatingButton(context)
-            : null);
+    return WillPopScope(
+        onWillPop: () {
+          Navigator.pop(context, _controller.isActionPerformed);
+          return Future.value(false);
+        },
+        child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              backgroundColor: AppColors.themeColor,
+              elevation: 5.0,
+              title: Text('Book your lunch'),
+            ),
+            body: lunchUI(),
+            floatingActionButton:
+                _controller.loaderStatus == LoaderStatus.loaded
+                    ? floatingButton(context)
+                    : null));
   }
 }
 

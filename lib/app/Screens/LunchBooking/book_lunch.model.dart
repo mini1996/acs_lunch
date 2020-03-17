@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:acs_lunch/app/data/repository/book_screen/book_repository.dart';
 import 'package:acs_lunch/app/utils/http_helper.dart';
 import 'package:acs_lunch/constant/settings.dart';
@@ -9,9 +11,11 @@ class Model {
   BuildContext context;
   bool isLoading = false;
   bool isBooked = false;
+  bool isActionPerformed = false;
   bool isalreadyBooked = false;
   bool isCancelled = false;
   bool isEnabled = true;
+  StreamSubscription internetSubscription;
   String errorMessage;
   String selectedExtraItemValue = "";
   String selectedLunchOptionValue = "";

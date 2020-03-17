@@ -8,6 +8,7 @@ class Model {
   BuildContext context;
   bool isLoading = false;
   String errorMessage;
+  var internetSubscription;
   SharedPreferences mySharedPreferences;
   LoaderStatus loaderStatus = LoaderStatus.loading;
   String currentmonthname = "";
@@ -18,6 +19,8 @@ class Model {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   LunchBookingRepository bookRepo = LunchBookingRepository();
+
+  bool isInternetAvailable = true;
   fetchLunchCount() async {
     var response = await bookRepo.lunchBookedMonthWiseEntries();
     if (response['status'] == ResponseStatus.success) {

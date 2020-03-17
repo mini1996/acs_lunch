@@ -3,6 +3,7 @@ import 'package:acs_lunch/app/Screens/Home/homeview.dart';
 import 'package:acs_lunch/app/data/repository/auth_screen/data_auth_screen_respository.dart';
 import 'package:acs_lunch/app/utils/http_helper.dart';
 import 'package:acs_lunch/constant/preferences.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flushbar/flushbar.dart';
 import 'loginmodel.dart';
@@ -33,9 +34,12 @@ class Controller extends ControllerMVC {
   bool get isAutoValidateMode => model.isAutoValidateMode;
   get userNameController => model.userNameController;
   get passwordController => model.passwordController;
-
+  get isInternetAvailable => model.isInternetAvailable;
+  set isInternetAvailable(boolean) => model.isInternetAvailable = boolean;
   set isAutoValidateMode(boolean) => model.isAutoValidateMode = boolean;
   set isLoading(value) => model.isLoading = value;
+  get loginUserName => model.loginUserName;
+  set loginUserName(value) => model.loginUserName = value;
 
   get errorMessage => model.errorMessage;
   set errorMessage(value) => model.errorMessage = value;
@@ -50,11 +54,25 @@ class Controller extends ControllerMVC {
   @override
   void dispose() {
     //runs second
+    model.internetSubscription.cancel();
     _this = null;
     super.dispose();
   }
 
   init() async {
+    model.internetSubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      if (result == ConnectivityResult.none)
+        setState(() {
+          isInternetAvailable = false;
+        });
+      else
+        setState(() {
+          model.isInternetAvailable = true;
+        });
+    });
     model.mySharedPreferences = await SharedPreferences.getInstance();
   }
 
@@ -76,8 +94,7 @@ class Controller extends ControllerMVC {
     setState(() {
       isLoading = true;
     });
-    model.mySharedPreferences
-        .setString(Preferences.login_token, loginData["username"]);
+
     String params = base64.encode(
         utf8.encode(loginData["username"] + ":" + loginData["password"]));
     model.mySharedPreferences.setString(Preferences.auth_token, params);
@@ -85,6 +102,17 @@ class Controller extends ControllerMVC {
     var response = await model.login();
 
     if (response['status'] == ResponseStatus.success) {
+      var data = response['data']['user'];
+      loginUserName = data['firstname'];
+      model.mySharedPreferences
+          .setString(Preferences.login_token, loginUserName);
+
+      // List<Map> data =
+      //     response['data'] != null ? response['data']['user'] : List();
+      // data.forEach((item) {
+      //   loginUserName = item['firstname'];
+      //   // return name;
+      // });
       Navigator.push(
         this.stateMVC.context,
         MaterialPageRoute(builder: (context) => Homescreen()),

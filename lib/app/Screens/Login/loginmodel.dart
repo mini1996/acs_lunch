@@ -12,8 +12,10 @@ class Model {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
+  String loginUserName = "";
   SharedPreferences mySharedPreferences;
-
+  var internetSubscription;
+  bool isInternetAvailable = true;
   AuthScreenRepository loginRepo;
   login() async {
     return await loginRepo.loginUser();
