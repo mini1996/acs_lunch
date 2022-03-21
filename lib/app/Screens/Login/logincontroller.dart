@@ -9,6 +9,7 @@ import 'package:flushbar/flushbar.dart';
 import 'loginmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'dart:io';
 
 class Controller extends ControllerMVC {
   //final log = getLogger('template');
@@ -42,8 +43,17 @@ class Controller extends ControllerMVC {
   set loginUserName(value) => model.loginUserName = value;
   get loginId => model.loginId;
   set loginId(value) => model.loginId = value;
+  get backButtonPressTime => model.backButtonPressTime;
+  get scaffoldKey => model.scaffoldKey;
+  set scaffoldKey(value) => model.scaffoldKey;
+  set backButtonPressTime(value) => model.backButtonPressTime = value;
   get errorMessage => model.errorMessage;
   set errorMessage(value) => model.errorMessage = value;
+  static const snackBarDuration = Duration(seconds: 3);
+  final snackBar = SnackBar(
+    content: Text('Press back again to exit'),
+    duration: snackBarDuration,
+  );
 
   @override
   void initState() {
@@ -91,6 +101,23 @@ class Controller extends ControllerMVC {
     }
   }
 
+  Future<bool> onWillPop() async {
+    // DateTime currentTime = DateTime.now();
+
+    // bool backButtonHasNotBeenPressedOrSnackBarHasBeenClosed =
+    //     backButtonPressTime == null ||
+    //         currentTime.difference(backButtonPressTime) > snackBarDuration;
+
+    // if (backButtonHasNotBeenPressedOrSnackBarHasBeenClosed) {
+    //   backButtonPressTime = currentTime;
+    //   scaffoldKey.currentState.showSnackBar(snackBar);
+    //   return false;
+    // }
+
+    exit(0);
+    return false; //true sends it to previous page
+  }
+
   void login(BuildContext context) async {
     setState(() {
       isLoading = true;
@@ -110,19 +137,12 @@ class Controller extends ControllerMVC {
       model.mySharedPreferences
           .setString(Preferences.login_token, loginUserName);
       model.mySharedPreferences.setInt('loginTokenId', loginId);
-
-      // List<Map> data =
-      //     response['data'] != null ? response['data']['user'] : List();
-      // data.forEach((item) {
-      //   loginUserName = item['firstname'];
-      //   // return name;
-      // });
       Navigator.push(
         this.stateMVC.context,
         MaterialPageRoute(builder: (context) => Homescreen()),
       );
     } else {
-      // print(response['message']);
+      print(response['message'].toString());
       setState(() {
         isLoading = false;
       });

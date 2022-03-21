@@ -51,9 +51,15 @@ class LunchBookingRepository {
   }
 
   checkLunchBooked() async {
+    SharedPreferences mySharedPreferences;
+    mySharedPreferences = await SharedPreferences.getInstance();
     var now = new DateTime.now();
-    var checkurl =
-        Endpoints.checkBookingUrl + new DateFormat("yyyy-MM-dd").format(now);
+    String loginUserIdValue =
+        mySharedPreferences.getInt('loginTokenId').toString();
+    var checkurl = Endpoints.checkBookingUrl +
+        new DateFormat("yyyy-MM-dd").format(now) +
+        "&user_id=" +
+        loginUserIdValue;
     return await httpHelper.request(HttpMethods.get,
         endPoint: checkurl, authenticationRequired: true);
   }

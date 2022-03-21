@@ -15,7 +15,8 @@ class Model {
   bool isalreadyBooked = false;
   bool isCancelled = false;
   bool isEnabled = true;
-  StreamSubscription internetSubscription;
+  bool isInternetAvailable = true;
+  var internetSubscription;
   String errorMessage;
   String selectedExtraItemValue = "";
   String selectedLunchOptionValue = "";

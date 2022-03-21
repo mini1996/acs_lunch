@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:flushbar/flushbar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:ntp/ntp.dart';
 import 'homecontroller.dart';
 
 class Homescreen extends StatefulWidget {
@@ -15,19 +20,109 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends StateMVC<Homescreen> {
   _HomescreenState() : super(Controller());
   Controller _controller;
+  var deviceday;
+  var actualday;
+  Timer timer;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
+  displayNotification() async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'repeatDailyAtTime channel id',
+        'repeatDailyAtTime channel name',
+        'repeatDailyAtTime description',
+        importance: Importance.Max);
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    DateTime now = DateTime.now();
+    var daynow = new DateTime.now();
+    String startDay = daynow.day.toString();
+    print(startDay);
+    print("--");
+    String formattedTime = DateFormat.Hm().format(now);
+    if (formattedTime.compareTo("10:30") == 0) {
+      await flutterLocalNotificationsPlugin.show(
+          0,
+          "AcsLunch",
+          "Hey buddy! Please book your lunch if not booked",
+          //DateTime.now().add(Duration(seconds: 5)),
+          NotificationDetails(
+              androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics));
+    } else {
+      print("not match");
+    }
+    if (startDay.compareTo("1") == 0) {
+      if (formattedTime.compareTo("10:00") == 0) {
+        await flutterLocalNotificationsPlugin.show(
+            0,
+            "AcsLunch",
+            "Hey buddy! Please pay for your last month lunch if not paid",
+            NotificationDetails(
+                androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics));
+        print("matchessssssssssssssssss");
+      } else {
+        print("not matched tym");
+      }
+    } else {
+      print("not matched datesss");
+    }
+  }
+
   @override
   void initState() {
     //runs second
     super.initState();
     _controller = Controller.controller;
+    _controller.init();
+    //-------------------- Initialization Code---------------------
+    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('applogo');
+    var initializationSettingsIOS = IOSInitializationSettings(
+        onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+    var initializationSettings = InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    // timer = Timer.periodic(
+    //     Duration(minutes: 1), (Timer t) => displayNotification());
+    // displayNotification();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+    //--------------------------------------
 
-    _controller.init(); //use this
+    //setState(() {});
   }
 
   @override
   void dispose() {
     //runs first
+    timer?.cancel();
     super.dispose();
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      print("np:$payload");
+    }
+    //  _controller.navigationPage(context);
+    // await Navigator.push(
+    //   context, new MaterialPageRoute(builder: (context) => new Homescreen()));
+  }
+
+  Future onDidReceiveLocalNotification(
+      int id, String title, String body, String payload) async {
+    // display a dialog with the notification details, tap ok to go to another page
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text('Ok'),
+            onPressed: () {},
+          )
+        ],
+      ),
+    );
   }
 
   void redflushbar(BuildContext context, String msg) {
@@ -106,11 +201,12 @@ class _HomescreenState extends StateMVC<Homescreen> {
             String monthName, String lunchCount, int pay, List dataList) {
           return Card(
               elevation: 3.0,
+              color: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(20),
                       topLeft: Radius.circular(20)),
-                  side: BorderSide(width: 2, color: AppColors.themeColor)),
+                  side: BorderSide(width: 1, color: AppColors.grey)),
               child: Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Column(children: <Widget>[
@@ -166,21 +262,22 @@ class _HomescreenState extends StateMVC<Homescreen> {
         }
         return Container(
             child: new RefreshIndicator(
-                color: AppColors.themeColor,
-                displacement: 40,
-                onRefresh: _controller.fetchLunchCountMonthWise,
-                child: new ListView(children: <Widget>[
-                  cardUi(
-                      _controller.previousmonthname,
-                      lastMonthData.length.toString(),
-                      (lastMonthData.length * 10),
-                      lastMonthSpecialsDataList),
-                  cardUi(
-                      _controller.currentmonthname,
-                      currentMonthData.length.toString(),
-                      (currentMonthData.length * 10),
-                      currentMonthSpecialsDataList),
-                ])));
+          color: AppColors.themeColor,
+          displacement: 40,
+          onRefresh: _controller.fetchLunchCountMonthWise,
+          child: new ListView(children: <Widget>[
+            cardUi(
+                _controller.previousmonthname,
+                lastMonthData.length.toString(),
+                (lastMonthData.length * 10),
+                lastMonthSpecialsDataList),
+            cardUi(
+                _controller.currentmonthname,
+                currentMonthData.length.toString(),
+                (currentMonthData.length * 10),
+                currentMonthSpecialsDataList),
+          ]),
+        ));
 
       case LoaderStatus.error:
         return Center(
@@ -215,21 +312,50 @@ class _HomescreenState extends StateMVC<Homescreen> {
                   ),
             //
 
-            floatingActionButton:
-                _controller.loaderStatus == LoaderStatus.loaded
-                    ? FloatingActionButton.extended(
-                        onPressed: () {
-                          if ((DateTime.now().hour >= 1) &&
-                              (DateTime.now().hour <= 10)) {
-                            _controller.navigationPage(context);
-                          } else {
-                            redflushbar(context, "Time up !");
-                          }
-                        },
-                        backgroundColor: AppColors.themeColor,
-                        icon: Icon(Icons.fastfood),
-                        label: Text("Go to Lunch Booking"),
-                      )
-                    : null));
+            floatingActionButton: _controller.loaderStatus ==
+                        LoaderStatus.loaded &&
+                    _controller.isInternetAvailable
+                ? FloatingActionButton.extended(
+                    onPressed: () async {
+                      // _controller.loaderStatus == LoaderStatus.loading;
+                      DateTime deviceDate = DateTime.now().toLocal();
+                      DateTime actualDate = await NTP.now();
+
+                      setState(() {
+                        deviceday =
+                            new DateFormat("dd_MM_yyyy").format(deviceDate);
+                        actualday =
+                            new DateFormat("dd_MM_yyyy").format(actualDate);
+                      });
+                      print(DateTime.now().minute);
+                      DateTime currentDate = DateTime.now();
+                      if ((actualday.compareTo(deviceday)) == 0) {
+                        if ((currentDate.isAfter(DateTime(
+                                currentDate.year,
+                                currentDate.month,
+                                currentDate.day,
+                                1,
+                                0,
+                                0))) &&
+                            (currentDate.isBefore(DateTime(
+                                currentDate.year,
+                                currentDate.month,
+                                currentDate.day,
+                                11,
+                                20,
+                                0)))) {
+                          _controller.navigationPage(context);
+                        } else {
+                          redflushbar(context, "Time up!");
+                        }
+                      } else {
+                        redflushbar(
+                            context, "Ensure you have correct device date!");
+                      }
+                    },
+                    backgroundColor: AppColors.themeColor,
+                    icon: Icon(Icons.fastfood),
+                    label: Text("Go to Lunch Booking"))
+                : null));
   }
 }

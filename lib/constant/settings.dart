@@ -37,7 +37,7 @@ class Settings {
           {"id": 41, "value": selectedLunchMenuId.toString()},
           {"id": 47, "value": specialItemValue}
         ],
-        "comments": "I need meals today"
+        "comments": ""
       }
     };
   }

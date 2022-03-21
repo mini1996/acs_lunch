@@ -17,7 +17,9 @@ class Model {
   SharedPreferences mySharedPreferences;
   var internetSubscription;
   bool isInternetAvailable = true;
+  DateTime backButtonPressTime;
   AuthScreenRepository loginRepo;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   login() async {
     return await loginRepo.loginUser();
   }

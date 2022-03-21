@@ -4,9 +4,9 @@ import 'package:acs_lunch/constant/app_theme.dart';
 import 'package:acs_lunch/utils/flushbar.dart';
 import 'package:acs_lunch/utils/loader.dart';
 import 'package:acs_lunch/utils/logger.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +24,8 @@ class Controller extends ControllerMVC {
   get loaderStatus => model.loaderStatus;
   get options => model.options;
   set options(value) => model.options = value;
+  get isInternetAvailable => model.isInternetAvailable;
+  set isInternetAvailable(boolean) => model.isInternetAvailable = boolean;
   get specialOptions => model.specialOptions;
   set specialOptions(value) => model.specialOptions = value;
   get selectedLunchOption => model.selectedLunchOption;
@@ -65,22 +67,25 @@ class Controller extends ControllerMVC {
   @override
   void dispose() {
     //runs second
-    //model.internetSubscription.cancel();
+    model.internetSubscription.cancel();
     _this = null;
     super.dispose();
   }
 
   init() async {
-    // model.internetSubscription = Connectivity()
-    //     .onConnectivityChanged
-    //     .listen((ConnectivityResult result) {
-    //   // Got a new connectivity status!
-    //   if(result==ConnectivityResult.none
-    //   setState((){
-    //     model.errorMessage=
-    //   });
-
-    // });
+    model.internetSubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      if (result == ConnectivityResult.none)
+        setState(() {
+          isInternetAvailable = false;
+        });
+      else
+        setState(() {
+          isInternetAvailable = true;
+        });
+    });
     model.mySharedPreferences = await SharedPreferences.getInstance();
     setState(() {
       model.loaderStatus = LoaderStatus.loading;

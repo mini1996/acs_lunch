@@ -42,7 +42,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         
     }
-
+    signingConfigs {
+        //Your configuration here
+       }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

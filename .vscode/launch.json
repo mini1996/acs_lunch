@@ -6,6 +6,7 @@
     "configurations": [
         {
             "name": "Flutter",
+            //"program": "C:/FlutterProjects/acs_lunch/lib/main.dart",
             "request": "launch",
             "type": "dart"
         }

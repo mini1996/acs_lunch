@@ -29,6 +29,12 @@ class Model {
       var timeEntries = response['data']['time_entries'];
       for (Map timeEntry in timeEntries) {
         DateTime date = DateTime.parse(timeEntry['spent_on']);
+
+        if (DateTime.now().month == 1) {
+          if (date.month == 12) {
+            lastMonthBookings.add(timeEntry);
+          }
+        }
         if (date.month == DateTime.now().month - 1) {
           lastMonthBookings.add(timeEntry);
         } else if (date.month == DateTime.now().month) {

@@ -67,14 +67,14 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
             value: _controller.selectedLunchOption,
             icon: Icon(Icons.arrow_drop_down),
             iconSize: 24,
-            elevation: 16,
+            // elevation: 16,
             style: TextStyle(color: AppColors.themeColor),
             items: _controller.options.map<DropdownMenuItem>((item) {
               //  print(item);
               return new DropdownMenuItem(
                 child: Center(
                     child: Container(
-                  height: 50.0,
+                  //height: 50.0,
                   child: Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                       child: Column(
@@ -86,6 +86,8 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
                               style: TextStyle(
                                   color: AppColors.themeColor,
                                   fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                  fontFamily: 'Roboto',
                                   fontSize: 15.0),
                             ),
                           )
@@ -160,6 +162,7 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
                                   //fontWeight: FontWeight.w500,
                                   fontSize: 15.0),
                             ),
+                            SizedBox(height: 3),
                             RichText(
                                 text: TextSpan(children: [
                               lunchMenu != "" && lunchMenu != null
@@ -357,9 +360,18 @@ class _BookLunchScreenState extends StateMVC<BookLunchScreen> {
               elevation: 5.0,
               title: Text('Book your lunch'),
             ),
-            body: lunchUI(),
+            body: _controller.isInternetAvailable
+                ? lunchUI()
+                : Center(
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                      child: Text("Please check your internet connection"),
+                    ),
+                  ),
             floatingActionButton:
-                _controller.loaderStatus == LoaderStatus.loaded
+                _controller.loaderStatus == LoaderStatus.loaded &&
+                        _controller.isInternetAvailable
                     ? floatingButton(context)
                     : null));
   }
